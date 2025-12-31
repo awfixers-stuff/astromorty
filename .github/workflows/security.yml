@@ -1,0 +1,129 @@
+---
+name: Security
+on:
+  push:
+    branches: [main, 'v[0-9]+.[0-9]+.[0-9]+*']
+  pull_request:
+    branches: [main, 'v[0-9]+.[0-9]+.[0-9]+*']
+  schedule:
+    - cron: 20 7 * * 1
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+env:
+  # renovate: datasource=python-version depName=python
+  PYTHON_VERSION: 3.13.8
+  SAFETY_SEVERITY: HIGH,CRITICAL
+  ARTIFACT_RETENTION_DAYS: 30
+  REVIEWDOG_REPORTER: github-pr-review
+  REVIEWDOG_FILTER_MODE: file
+  GITLEAKS_LEVEL: error
+  GITLEAKS_FAIL_LEVEL: error
+  GITLEAKS_FLAGS: --verbose
+jobs:
+  changes:
+    name: File Detection
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      python: ${{ steps.python_changes.outputs.any_changed }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8  # v6
+        with:
+          fetch-depth: 0
+      - name: Check Python
+        uses: tj-actions/changed-files@24d32ffd492484c1d75e0c0b894501ddb9d30d62  # v47
+        id: python_changes
+        with:
+          files: |
+            **/*.py
+            pyproject.toml
+            uv.lock
+          files_ignore: |
+            tests/**/*.py
+            **/tests/**/*.py
+            **/migrations/**/*.py
+            src/tux/database/migrations/**/*.py
+  codeql:
+    name: CodeQL
+    runs-on: ubuntu-latest
+    needs: [changes]
+    if: needs.changes.outputs.python == 'true' || github.event_name == 'workflow_dispatch'
+    permissions:
+      security-events: write
+      packages: read
+      actions: read
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - language: actions
+            build-mode: none
+          - language: python
+            build-mode: none
+    steps:
+      - name: Checkout
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8  # v6
+      - name: Initialize
+        uses: github/codeql-action/init@5d4e8d1aca955e8d8589aabd499c5cae939e33c7  # v4
+        with:
+          languages: ${{ matrix.language }}
+          build-mode: ${{ matrix.build-mode }}
+      - name: Analyze
+        uses: github/codeql-action/analyze@5d4e8d1aca955e8d8589aabd499c5cae939e33c7  # v4
+        with:
+          category: /language:${{ matrix.language }}
+  dependencies:
+    name: Dependencies
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8  # v6
+      - name: Review
+        uses: actions/dependency-review-action@3c4e3dcb1aa7874d2c16be7d79418e9b7efd6261  # v4
+        with:
+          fail-on-severity: high
+          comment-summary-in-pr: always
+  python:
+    name: Python Security
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    needs: [changes]
+    if: needs.changes.outputs.python == 'true' || github.event_name == 'workflow_dispatch'
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8  # v6
+      - name: Setup Python
+        uses: ./.github/actions/setup-python
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          enable-cache: true
+      - name: Check
+        run: |
+          pip install safety
+          uv export --format requirements.txt --output-file requirements.txt
+          safety check --json --output safety-report.json -r requirements.txt || true
+      - name: Upload Results
+        if: always()
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f  # v6
+        with:
+          name: safety-report
+          path: safety-report.json
+          retention-days: ${{ env.ARTIFACT_RETENTION_DAYS }}
+
+      # Optimize cache for CI: Remove pre-built wheels, keep source-built wheels
+      # This improves cache efficiency by only keeping wheels that take time to build
+      # Docs: https://docs.astral.sh/uv/concepts/cache/#caching-in-continuous-integration
+      - name: Prune uv cache for CI
+        if: always()
+        run: uv cache prune --ci
