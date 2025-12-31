@@ -1,7 +1,7 @@
 """
 SSH Administration Database Models.
 
-This module contains the database models for SSH-based administration,
+This module contains database models for SSH-based administration,
 including SSH key management, session tracking, and audit logging.
 """
 
@@ -28,7 +28,7 @@ class SSHAdminKey(BaseModel):
     id : int
         Primary key identifier.
     discord_user_id : int
-        Foreign key to the Discord user who owns this key.
+        Foreign key to Discord user who owns this key.
     key_type : str
         SSH key type (e.g., 'ssh-rsa', 'ssh-ed25519').
     key_data : str
@@ -69,25 +69,10 @@ class SSHAdminKey(BaseModel):
     )
 
     key_comment: Mapped[str | None] = mapped_column(
-        default=None, description="Optional comment or name for key"
+        default=None, description="Optional comment or name for the key"
     )
 
     fingerprint: Mapped[str] = mapped_column(
-        unique=True,
-        index=True,
-        description="SHA256 fingerprint for unique identification",
-    )
-
-    key_data: Mapped[str] = mapped_column(
-        nullable=False, description="SSH public key data (base64 encoded)"
-    )
-
-    key_comment: Mapped[str | None] = mapped_column(
-        nullable=True, default=None, description="Optional comment or name for the key"
-    )
-
-    fingerprint: Mapped[str] = mapped_column(
-        nullable=False,
         unique=True,
         index=True,
         description="SHA256 fingerprint for unique identification",
@@ -100,20 +85,17 @@ class SSHAdminKey(BaseModel):
 
     allowed_guilds: Mapped[dict[str, Any]] = mapped_column(
         JSON,
-        nullable=False,
         default_factory=dict,
         description="Guild IDs this key can access (empty dict = all)",
     )
 
     # Timestamps and status
-last_used: Mapped[datetime | None] = mapped_column(
-        default=None,
-        description="Last time this key was used for authentication"
+    last_used: Mapped[datetime | None] = mapped_column(
+        default=None, description="Last time this key was used for authentication"
     )
 
     is_active: Mapped[bool] = mapped_column(
-        default=True,
-        description="Whether the key is currently enabled"
+        default=True, description="Whether the key is currently enabled"
     )
 
     __table_args__ = (
@@ -123,7 +105,7 @@ last_used: Mapped[datetime | None] = mapped_column(
     )
 
     def __repr__(self) -> str:
-        """Return string representation of the SSH key."""
+        """Return string representation of SSH key."""
         return (
             f"SSHAdminKey(id={self.id}, discord_user_id={self.discord_user_id}, "
             f"fingerprint={self.fingerprint[:16]}..., permission_level={self.permission_level})"
@@ -143,9 +125,9 @@ class SSHSession(BaseModel):
     session_id : str
         Unique session identifier for tracking.
     ssh_key_id : int
-        Foreign key to the SSH key used for authentication.
+        Foreign key to SSH key used for authentication.
     discord_user_id : int
-        Foreign key to the Discord user who connected.
+        Foreign key to Discord user who connected.
     client_ip : str
         IP address of the connecting client.
     client_version : str | None
@@ -175,125 +157,65 @@ class SSHSession(BaseModel):
     # Primary key and identification
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     session_id: Mapped[str] = mapped_column(
-        nullable=False,
-        unique=True,
-        description="Unique session identifier for tracking",
+        unique=True, description="Unique session identifier for tracking"
     )
 
-# Authentication details
+    # Authentication details
     ssh_key_id: Mapped[int] = mapped_column(
-        Integer,
-        index=True,
-        description="Foreign key to SSH admin key used"
-    )
-    
-    discord_user_id: Mapped[int] = mapped_column(
-        Integer,
-        index=True,
-        description="Discord user who connected"
-    )
-    
-    # Connection details
-    client_ip: Mapped[str] = mapped_column(
-        description="Client IP address"
-    )
-    
-    client_version: Mapped[str | None] = mapped_column(
-        default=None,
-        description="SSH client version string"
-    )
-    
-    terminal_type: Mapped[str | None] = mapped_column(
-        default=None,
-        description="Terminal type reported by client"
+        Integer, index=True, description="Foreign key to SSH admin key used"
     )
 
     discord_user_id: Mapped[int] = mapped_column(
-        Integer, nullable=False, index=True, description="Discord user ID who connected"
+        Integer, index=True, description="Discord user who connected"
     )
 
     # Connection details
-    client_ip: Mapped[str] = mapped_column(
-        nullable=False, description="Client IP address"
-    )
+    client_ip: Mapped[str] = mapped_column(description="Client IP address")
 
     client_version: Mapped[str | None] = mapped_column(
-        nullable=True, default=None, description="SSH client version string"
+        default=None, description="SSH client version string"
     )
 
     terminal_type: Mapped[str | None] = mapped_column(
-        nullable=True, default=None, description="Terminal type reported by client"
+        default=None, description="Terminal type reported by the client"
     )
 
     # Timestamps
     connected_at: Mapped[datetime] = mapped_column(
-        nullable=False,
         default_factory=lambda: datetime.now(UTC),
         index=True,
         description="When the session was established",
     )
 
     last_activity: Mapped[datetime] = mapped_column(
-        nullable=False,
         default_factory=lambda: datetime.now(UTC),
         description="Last activity timestamp for timeout tracking",
     )
 
-disconnected_at: Mapped[datetime | None] = mapped_column(
-        default=None,
-        description="When the session ended"
-    )
-    
-    commands_executed: Mapped[int] = mapped_column(
-        default=0,
-        description="Number of commands executed during this session"
-    )
-    
-    bytes_sent: Mapped[int] = mapped_column(
-        default=0,
-        description="Number of bytes sent to the client"
-    )
-    
-    bytes_received: Mapped[int] = mapped_column(
-        default=0,
-        description="Number of bytes received from the client"
-    )
-    
-    # Status and cleanup
-    is_active: Mapped[bool] = mapped_column(
-        default=True,
-        index=True,
-        description="Whether the session is currently active"
-    )
-    
-    disconnect_reason: Mapped[str | None] = mapped_column(
-        default=None,
-        description="Reason for the session disconnection if available"
+    disconnected_at: Mapped[datetime | None] = mapped_column(
+        default=None, description="When the session ended"
     )
 
     # Session statistics
     commands_executed: Mapped[int] = mapped_column(
-        nullable=False,
-        default=0,
-        description="Number of commands executed during session",
+        default=0, description="Number of commands executed during this session"
     )
 
     bytes_sent: Mapped[int] = mapped_column(
-        nullable=False, default=0, description="Number of bytes sent to client"
+        default=0, description="Number of bytes sent to the client"
     )
 
     bytes_received: Mapped[int] = mapped_column(
-        nullable=False, default=0, description="Number of bytes received from client"
+        default=0, description="Number of bytes received from the client"
     )
 
     # Status and cleanup
-is_active: Mapped[bool] = mapped_column(
-        default=True,
-        description="Whether the key is currently enabled"
+    is_active: Mapped[bool] = mapped_column(
+        default=True, index=True, description="Whether the session is currently active"
     )
 
     disconnect_reason: Mapped[str | None] = mapped_column(
-        nullable=True, default=None, description="Reason for session disconnection"
+        default=None, description="Reason for session disconnection if available"
     )
 
     __table_args__ = (
@@ -303,7 +225,7 @@ is_active: Mapped[bool] = mapped_column(
     )
 
     def __repr__(self) -> str:
-        """Return string representation of the SSH session."""
+        """Return string representation of SSH session."""
         return (
             f"SSHSession(id={self.id}, session_id={self.session_id}, "
             f"discord_user_id={self.discord_user_id}, is_active={self.is_active})"
@@ -361,109 +283,52 @@ class SSHAuditLog(BaseModel):
     # Primary key
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
 
-# Session and user identification
+    # Session and user identification
     session_id: Mapped[str] = mapped_column(
-        unique=True,
-        description="SSH session identifier for tracking"
-    )
-    
-    discord_user_id: Mapped[int] = mapped_column(
-        Integer,
-        index=True,
-        description="Discord user who performed the action"
+        index=True, description="SSH session identifier"
     )
 
     discord_user_id: Mapped[int] = mapped_column(
-        Integer,
-        nullable=False,
-        index=True,
-        description="Discord user who performed the action",
+        Integer, index=True, description="Discord user who performed the action"
     )
 
-# Action details
+    # Action details
     action: Mapped[str] = mapped_column(
         index=True,
-        description="Type of action performed (COMMAND, SERVICE_RESTART, etc.)"
-    )
-    
-    command: Mapped[str | None] = mapped_column(
-        default=None,
-        description="The actual command that was executed"
-    )
-    
-    arguments: Mapped[dict[str, Any] | None] = mapped_column(
-        JSON,
-        default=None,
-        description="Arguments passed to the command"
-    )
-    
-    result: Mapped[str | None] = mapped_column(
-        default=None,
-        description="Result or output of the action"
-    )
-    
-    status: Mapped[str] = mapped_column(
-        index=True,
-        description="Status of the action (SUCCESS, ERROR, TIMEOUT)"
-    )
-    
-    execution_time_ms: Mapped[int | None] = mapped_column(
-        default=None,
-        description="Execution time in milliseconds"
+        description="Type of action performed (COMMAND, SERVICE_RESTART, etc.)",
     )
 
     command: Mapped[str | None] = mapped_column(
-        nullable=True, default=None, description="The actual command that was executed"
+        default=None, description="The actual command that was executed"
     )
 
     arguments: Mapped[dict[str, Any] | None] = mapped_column(
-        JSON, nullable=True, default=None, description="Arguments passed to the command"
+        JSON, default=None, description="Arguments passed to the command"
     )
 
     result: Mapped[str | None] = mapped_column(
-        nullable=True, default=None, description="Result or output of the action"
+        default=None, description="Result or output of the action"
     )
 
     status: Mapped[str] = mapped_column(
-        nullable=False,
-        index=True,
-        description="Status of the action (SUCCESS, ERROR, TIMEOUT)",
+        index=True, description="Status of the action (SUCCESS, ERROR, TIMEOUT)"
     )
 
     execution_time_ms: Mapped[int | None] = mapped_column(
-        nullable=True, default=None, description="Execution time in milliseconds"
+        default=None, description="Execution time in milliseconds"
     )
 
-# Context information
+    # Context information
     guild_id: Mapped[int | None] = mapped_column(
-        Integer,
-        index=True,
-        description="Guild ID if the action was guild-specific"
-    )
-    
-    metadata: Mapped[dict[str, Any] | None] = mapped_column(
-        JSON,
-        default=None,
-        description="Additional metadata for the action"
-    )
-    
-    # Timestamp
-    timestamp: Mapped[datetime] = mapped_column(
-        default_factory=lambda: datetime.now(UTC),
-        index=True,
-        description="When the action was performed"
+        Integer, index=True, description="Guild ID if the action was guild-specific"
     )
 
-    metadata: Mapped[dict[str, Any] | None] = mapped_column(
-        JSON,
-        nullable=True,
-        default=None,
-        description="Additional metadata for the action",
+    event_metadata: Mapped[dict[str, Any] | None] = mapped_column(
+        JSON, default=None, description="Additional metadata for the action"
     )
 
     # Timestamp
     timestamp: Mapped[datetime] = mapped_column(
-        nullable=False,
         default_factory=lambda: datetime.now(UTC),
         index=True,
         description="When the action was performed",
