@@ -1434,7 +1434,9 @@ class Ticket(BaseModel, table=True):
         Index("idx_ticket_creator", "creator_id"),
         Index("idx_ticket_assigned_staff", "assigned_staff_id"),
         Index("idx_ticket_number", "ticket_number"),
-        UniqueConstraint("guild_id", "ticket_number", name="uq_ticket_guild_ticket_number"),
+        UniqueConstraint(
+            "guild_id", "ticket_number", name="uq_ticket_guild_ticket_number"
+        ),
         UniqueConstraint("channel_id", name="uq_ticket_channel_id"),
     )
 
@@ -1695,10 +1697,8 @@ class AntinukeEvent(BaseModel, table=True):
     )
 
     action_type: AntinukeActionType = Field(
-        nullable=False,
         sa_column=Column(
             PgEnum(AntinukeActionType, name="antinuke_action_type_enum"),
-            nullable=False,
         ),
         description="Type of action that was detected",
     )
@@ -1718,10 +1718,8 @@ class AntinukeEvent(BaseModel, table=True):
     )
 
     response_type: AntinukeResponseType = Field(
-        nullable=False,
         sa_column=Column(
             PgEnum(AntinukeResponseType, name="antinuke_response_type_enum"),
-            nullable=False,
         ),
         description="Response action that was taken",
     )
@@ -1736,7 +1734,7 @@ class AntinukeEvent(BaseModel, table=True):
         description="Error message if response execution failed",
     )
 
-    metadata: dict[str, Any] | None = Field(
+    event_metadata: dict[str, Any] | None = Field(
         default=None,
         sa_type=JSON,
         description="Additional metadata about the event",

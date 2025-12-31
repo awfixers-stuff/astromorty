@@ -146,8 +146,9 @@ class AntinukeConfig(BaseCog):
 
         config = await self.antinuke_service.get_or_create_config(ctx.guild.id)
         config.enabled = False
-        self.db.session.add(config)
-        await self.db.session.commit()
+        async with self.db.db.session() as session:
+            session.add(config)
+            await session.commit()
 
         embed = EmbedCreator.create_embed(
             embed_type=EmbedType.INFO,
@@ -191,8 +192,9 @@ class AntinukeConfig(BaseCog):
                 description="Quarantine role has been removed.",
             )
 
-        self.db.session.add(config)
-        await self.db.session.commit()
+        async with self.db.db.session() as session:
+            session.add(config)
+            await session.commit()
         await ctx.send(embed=embed)
 
     @antinuke_group.command(name="logchannel")
@@ -230,8 +232,9 @@ class AntinukeConfig(BaseCog):
                 description="Log channel has been removed.",
             )
 
-        self.db.session.add(config)
-        await self.db.session.commit()
+        async with self.db.db.session() as session:
+            session.add(config)
+            await session.commit()
         await ctx.send(embed=embed)
 
     @antinuke_group.command(name="response")
@@ -265,8 +268,9 @@ class AntinukeConfig(BaseCog):
 
         config = await self.antinuke_service.get_or_create_config(ctx.guild.id)
         config.response_type = response_enum
-        self.db.session.add(config)
-        await self.db.session.commit()
+        async with self.db.db.session() as session:
+            session.add(config)
+            await session.commit()
 
         embed = EmbedCreator.create_embed(
             embed_type=EmbedType.SUCCESS,
@@ -327,8 +331,9 @@ class AntinukeConfig(BaseCog):
             return
 
         setattr(config, action_map[action_lower], threshold)
-        self.db.session.add(config)
-        await self.db.session.commit()
+        async with self.db.db.session() as session:
+            session.add(config)
+            await session.commit()
 
         embed = EmbedCreator.create_embed(
             embed_type=EmbedType.SUCCESS,
@@ -366,8 +371,9 @@ class AntinukeConfig(BaseCog):
 
         config = await self.antinuke_service.get_or_create_config(ctx.guild.id)
         config.time_window_seconds = seconds
-        self.db.session.add(config)
-        await self.db.session.commit()
+        async with self.db.db.session() as session:
+            session.add(config)
+            await session.commit()
 
         embed = EmbedCreator.create_embed(
             embed_type=EmbedType.SUCCESS,

@@ -241,7 +241,7 @@ class AntinukeService:
                 action_count=action_count,
                 threshold=threshold,
                 response_type=config.response_type,
-                metadata=metadata,
+                event_metadata=metadata,
                 timestamp=now,
             )
 

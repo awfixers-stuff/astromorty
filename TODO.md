@@ -34,6 +34,47 @@ Fix log channel ui not updating when channel is selected
 
 FIx /config ranks create command not working
 
+## Database Issues
+
+### Session Access Patterns
+- [ ] **Inconsistent Session Access** - Services use `self.db.db.session()` (DatabaseCoordinator → DatabaseService) while controllers use `self.db.session()` (DatabaseService directly). Need to standardize the pattern across all services and controllers.
+- [ ] **Antinuke Service Session Access** - Currently uses `self.db.db.session()` which is correct but inconsistent with controller patterns. Consider refactoring to match controller pattern or document the difference.
+- [ ] **Session Context Manager Usage** - Verify all database operations properly use async context managers for session management to prevent resource leaks.
+
+### Model Issues
+- [ ] **Reserved Field Names** - Fixed `metadata` → `event_metadata` in AntinukeEvent model. Need to audit all models for other reserved SQLAlchemy field names (e.g., `metadata`, `registry`, `mapper`, etc.).
+- [ ] **Field Name Conflicts** - Check for any other SQLModel/SQLAlchemy reserved attribute names that might cause conflicts.
+
+### Migration Issues
+- [ ] **Antinuke Migration** - Create database migration for antinuke system tables (antinuke_config, antinuke_events) with proper enum types, constraints, and indexes.
+- [ ] **Enum Type Migrations** - Ensure AntinukeActionType and AntinukeResponseType enums are properly created in PostgreSQL with correct naming.
+- [ ] **Migration Testing** - Test antinuke migration upgrade and downgrade paths to ensure rollback works correctly.
+
+### Database Access Patterns
+- [ ] **Service vs Controller Pattern** - Services (like AntinukeService) receive DatabaseCoordinator but need DatabaseService for sessions. Controllers receive DatabaseService directly. Consider standardizing on one pattern.
+- [ ] **Session Lifecycle Management** - Document and verify proper session lifecycle (create, use, commit/rollback, cleanup) across all database operations.
+- [ ] **Transaction Boundaries** - Ensure transaction boundaries are properly defined and all related operations are within the same transaction when needed.
+
+### Performance & Optimization
+- [ ] **Session Pooling** - Verify session pooling is working correctly and not creating too many connections.
+- [ ] **Query Optimization** - Review antinuke service queries for potential N+1 query problems or missing indexes.
+- [ ] **Connection Leaks** - Add monitoring/alerting for potential database connection leaks.
+
+### Error Handling
+- [ ] **Database Error Recovery** - Ensure antinuke service properly handles database connection failures, timeouts, and retries.
+- [ ] **Transaction Rollback** - Verify all database operations properly rollback on errors, especially in antinuke event recording.
+- [ ] **Error Logging** - Ensure database errors in antinuke system are properly logged with context for debugging.
+
+### Data Integrity
+- [ ] **Foreign Key Constraints** - Verify antinuke_config foreign key to guild table is properly set up with CASCADE delete.
+- [ ] **Constraint Validation** - Test all check constraints in antinuke models (thresholds, IDs, etc.) work correctly.
+- [ ] **Index Optimization** - Review and optimize indexes on antinuke_events table for query performance (guild_id, user_id, timestamp, etc.).
+
+### Testing
+- [ ] **Database Tests** - Add unit tests for antinuke database operations (config creation, event recording, queries).
+- [ ] **Migration Tests** - Add tests to verify antinuke migrations work correctly.
+- [ ] **Integration Tests** - Test antinuke system end-to-end with database operations.
+
 Setup sentry sdk for metrics
 
 Set permission errors to not be sent to sentry
