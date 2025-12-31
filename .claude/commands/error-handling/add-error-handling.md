@@ -41,11 +41,8 @@ Implement comprehensive error handling for Discord bot operations, database tran
 
 ## See Also
 
-- Discord API Documentation: `@discord-api-docs` - Reference for Discord API error codes, rate limits, and error handling patterns
-
-## See Also
-
 - Related rule: @error-handling/patterns.mdc
 - Related rule: @error-handling/logging.mdc
 - Related rule: @error-handling/sentry.mdc
 - Related rule: @error-handling/user-feedback.mdc
+- Discord API Documentation: `@discord-api-docs` - Reference for Discord API error codes, rate limits, and error handling patterns
