@@ -10,10 +10,42 @@ from typing import TYPE_CHECKING, Any
 import discord
 from loguru import logger
 
+from astromorty.core.http_interaction_bridge import dispatch_http_interaction
+
 if TYPE_CHECKING:
     from astromorty.core.bot import Astromorty
 
-__all__ = ["InteractionRouter"]
+__all__ = ["InteractionRouter", "get_bot_instance", "set_bot_instance"]
+
+# Global bot instance for HTTP interactions
+# This is set when the bot starts and used by HTTP endpoints
+_global_bot_instance: "Astromorty | None" = None
+
+
+def set_bot_instance(bot: "Astromorty") -> None:
+    """
+    Set the global bot instance for HTTP interaction handling.
+
+    Parameters
+    ----------
+    bot : Astromorty
+        The bot instance to use for HTTP interactions
+    """
+    global _global_bot_instance
+    _global_bot_instance = bot
+    logger.debug("Global bot instance set for HTTP interactions")
+
+
+def get_bot_instance() -> "Astromorty | None":
+    """
+    Get the global bot instance for HTTP interaction handling.
+
+    Returns
+    -------
+    Astromorty | None
+        The bot instance or None if not set
+    """
+    return _global_bot_instance
 
 
 class InteractionRouter:
@@ -37,7 +69,7 @@ class InteractionRouter:
 
     def _get_bot(self) -> "Astromorty | None":
         """
-        Get bot instance, resolving from app if needed.
+        Get bot instance, resolving from global or injected instance.
 
         Returns
         -------
@@ -47,16 +79,8 @@ class InteractionRouter:
         if self.bot is not None:
             return self.bot
 
-        # Try to get from app context
-        # This is a fallback - ideally bot should be injected
-        try:
-            from astromorty.core.app import AstromortyApp
-
-            # Access app instance if available
-            # Note: This is a workaround - proper dependency injection would be better
-            return None  # Will be set via dependency injection
-        except Exception:
-            return None
+        # Try to get from global instance
+        return get_bot_instance()
 
     async def handle_interaction(self, payload: dict[str, Any]) -> dict[str, Any]:
         """
@@ -112,20 +136,33 @@ class InteractionRouter:
         dict[str, Any]
             Interaction response
         """
+        bot = self._get_bot()
+        if bot is None:
+            logger.error("Bot instance not available for interaction routing")
+            return {
+                "type": 4,  # CHANNEL_MESSAGE_WITH_SOURCE
+                "data": {
+                    "content": "❌ Bot instance not available",
+                    "flags": 64,  # EPHEMERAL
+                },
+            }
+
         data = payload.get("data", {})
         command_name = data.get("name", "unknown")
 
         logger.info(f"Handling slash command: {command_name}")
 
-        # For now, return a deferred response and handle via followup
-        # This gives us more time to process the command
-        # In a full implementation, we'd route to the actual command handler
-        return {
-            "type": 5,  # DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE
-            "data": {
-                "flags": 64,  # EPHEMERAL (optional)
-            },
-        }
+        # Use the HTTP interaction bridge to dispatch through discord.py
+        response = await dispatch_http_interaction(bot, payload)
+
+        # If bridge returned None, interaction was handled internally
+        # Return a deferred response to allow follow-up messages
+        if response is None:
+            return {
+                "type": 5,  # DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE
+            }
+
+        return response
 
     async def _handle_component(
         self,
@@ -144,16 +181,27 @@ class InteractionRouter:
         dict[str, Any]
             Interaction response
         """
+        bot = self._get_bot()
+        if bot is None:
+            logger.error("Bot instance not available for component interaction")
+            return {
+                "type": 6,  # DEFERRED_UPDATE_MESSAGE
+            }
+
         data = payload.get("data", {})
         custom_id = data.get("custom_id", "unknown")
 
         logger.info(f"Handling component interaction: {custom_id}")
 
-        # For now, return a deferred response
-        # In a full implementation, we'd route to the view handler
-        return {
-            "type": 6,  # DEFERRED_UPDATE_MESSAGE
-        }
+        # Use the HTTP interaction bridge to dispatch through discord.py
+        response = await dispatch_http_interaction(bot, payload)
+
+        if response is None:
+            return {
+                "type": 6,  # DEFERRED_UPDATE_MESSAGE
+            }
+
+        return response
 
     async def _handle_autocomplete(
         self,
@@ -210,17 +258,32 @@ class InteractionRouter:
         dict[str, Any]
             Interaction response
         """
+        bot = self._get_bot()
+        if bot is None:
+            logger.error("Bot instance not available for modal interaction")
+            return {
+                "type": 5,  # DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE
+                "data": {
+                    "flags": 64,  # EPHEMERAL
+                },
+            }
+
         data = payload.get("data", {})
         custom_id = data.get("custom_id", "unknown")
 
         logger.info(f"Handling modal submission: {custom_id}")
 
-        # For now, return a deferred response
-        # In a full implementation, we'd route to the modal handler
-        return {
-            "type": 5,  # DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE
-            "data": {
-                "flags": 64,  # EPHEMERAL
-            },
-        }
+        # Use the HTTP interaction bridge to dispatch through discord.py
+        response = await dispatch_http_interaction(bot, payload)
+
+        if response is None:
+            return {
+                "type": 5,  # DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE
+                "data": {
+                    "flags": 64,  # EPHEMERAL
+                },
+            }
+
+        return response
+
 

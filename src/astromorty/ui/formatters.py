@@ -213,3 +213,4 @@ def escape_markdown(text: str) -> str:
         logger.error(f"Error escaping markdown: {e}", exc_info=True)
         return text
 
+

@@ -228,3 +228,4 @@ class ErrorAnalyticsService:
 
         return [{"date": row.date.isoformat(), "count": row.count} for row in rows]
 
+

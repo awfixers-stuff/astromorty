@@ -156,6 +156,11 @@ class AstromortyApp:
         owner_ids = self._resolve_owner_ids()
         self.bot = self._create_bot_instance(owner_ids)
 
+        # Set global bot instance for HTTP interaction handling
+        from astromorty.core.interaction_router import set_bot_instance
+
+        set_bot_instance(self.bot)
+
         # Start HTTP server if interactions endpoint is configured
         http_server_task: asyncio.Task[Any] | None = None
         if CONFIG.INTERACTIONS_ENDPOINT_URL:

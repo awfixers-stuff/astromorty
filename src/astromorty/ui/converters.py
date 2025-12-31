@@ -209,3 +209,4 @@ def embed_to_textdisplay(
         logger.error(f"Error converting embed to TextDisplay: {e}", exc_info=True)
         raise
 
+

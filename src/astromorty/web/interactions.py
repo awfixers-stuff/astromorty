@@ -85,3 +85,4 @@ async def handle_interaction(request: Request) -> Response:
             detail=f"Internal server error: {str(e)}",
         ) from e
 
+
