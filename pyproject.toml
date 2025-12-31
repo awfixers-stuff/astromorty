@@ -63,6 +63,9 @@ dependencies = [
     "supabase-auth>=2.27.0",
     "realtime>=2.27.0",
     "postgrest>=2.27.0",
+    "workers-py>=1.7.0",
+    "workers-runtime-sdk>=0.3.1",
+    "pygments>=2.19.2",
 ]
 
 [project.urls]

@@ -304,6 +304,23 @@ class GuildConfig(BaseModel, table=True):
         description="Current stage of the onboarding wizard",
     )
 
+    # Error handling customization
+    error_message_customizations: dict[str, str] | None = Field(
+        default=None,
+        sa_type=JSON,
+        description="Per-error-type custom message formats (error_type -> message_format)",
+    )
+    error_embed_color: int | None = Field(
+        default=None,
+        sa_type=Integer,
+        description="Custom embed color for error messages (Discord color value)",
+    )
+    error_embed_title: str | None = Field(
+        default=None,
+        max_length=256,
+        description="Custom embed title for error messages",
+    )
+
     guild: Mapped[Guild] = Relationship(
         sa_relationship=relationship(back_populates="guild_config"),
     )
@@ -1766,3 +1783,126 @@ class AntinukeEvent(BaseModel, table=True):
     def __repr__(self) -> str:
         """Return string representation showing guild, user, and action type."""
         return f"<AntinukeEvent id={self.id} guild={self.guild_id} user={self.user_id} action={self.action_type.value}>"
+
+
+# =============================================================================
+# ERROR HANDLING MODELS
+# =============================================================================
+
+
+class ErrorEvent(BaseModel, table=True):
+    """Error event tracking for analytics and monitoring.
+
+    Records command errors for analytics, debugging, and system health monitoring.
+    Provides insights into error frequency, types, and patterns across guilds.
+
+    Attributes
+    ----------
+    id : UUID
+        Unique identifier for the error event.
+    guild_id : int, optional
+        Discord guild ID where the error occurred (None for DMs).
+    user_id : int, optional
+        Discord user ID who triggered the error (None if unavailable).
+    channel_id : int, optional
+        Discord channel ID where the error occurred (None if unavailable).
+    error_type : str
+        Type/class name of the error (e.g., 'CommandNotFound', 'MissingPermissions').
+    error_message : str, optional
+        Error message text.
+    command_name : str, optional
+        Name of the command that triggered the error.
+    is_app_command : bool
+        Whether this was a slash command (True) or prefix command (False).
+    sent_to_sentry : bool
+        Whether the error was reported to Sentry.
+    user_response_sent : bool
+        Whether an error response was sent to the user.
+    metadata : dict, optional
+        Additional context about the error (command args, permissions, etc.).
+    timestamp : datetime
+        When the error occurred.
+    """
+
+    __tablename__ = "error_event"  # pyright: ignore[reportAssignmentType]
+
+    guild_id: int | None = Field(
+        default=None,
+        sa_type=BigInteger,
+        index=True,
+        description="Discord guild ID where error occurred (None for DMs)",
+    )
+    user_id: int | None = Field(
+        default=None,
+        sa_type=BigInteger,
+        index=True,
+        description="Discord user ID who triggered the error",
+    )
+    channel_id: int | None = Field(
+        default=None,
+        sa_type=BigInteger,
+        index=True,
+        description="Discord channel ID where error occurred",
+    )
+    error_type: str = Field(
+        max_length=255,
+        index=True,
+        description="Type/class name of the error",
+    )
+    error_message: str | None = Field(
+        default=None,
+        max_length=2000,
+        description="Error message text",
+    )
+    command_name: str | None = Field(
+        default=None,
+        max_length=255,
+        index=True,
+        description="Name of the command that triggered the error",
+    )
+    is_app_command: bool = Field(
+        default=False,
+        description="Whether this was a slash command (True) or prefix command (False)",
+    )
+    sent_to_sentry: bool = Field(
+        default=False,
+        description="Whether the error was reported to Sentry",
+    )
+    user_response_sent: bool = Field(
+        default=True,
+        description="Whether an error response was sent to the user",
+    )
+    metadata: dict[str, Any] | None = Field(
+        default=None,
+        sa_type=JSON,
+        description="Additional context about the error",
+    )
+    timestamp: datetime = Field(
+        default_factory=lambda: datetime.now(UTC),
+        sa_type=DateTime(timezone=True),
+        index=True,
+        description="When the error occurred",
+    )
+
+    __table_args__ = (
+        CheckConstraint(
+            "guild_id IS NULL OR guild_id > 0",
+            name="check_error_event_guild_id_valid",
+        ),
+        CheckConstraint(
+            "user_id IS NULL OR user_id > 0",
+            name="check_error_event_user_id_valid",
+        ),
+        CheckConstraint(
+            "channel_id IS NULL OR channel_id > 0",
+            name="check_error_event_channel_id_valid",
+        ),
+        Index("idx_error_event_guild_timestamp", "guild_id", "timestamp"),
+        Index("idx_error_event_type_timestamp", "error_type", "timestamp"),
+        Index("idx_error_event_command_timestamp", "command_name", "timestamp"),
+    )
+
+    def __repr__(self) -> str:
+        """Return string representation showing error type and guild."""
+        guild_str = f"guild={self.guild_id}" if self.guild_id else "DM"
+        return f"<ErrorEvent id={self.id} {guild_str} type={self.error_type}>"

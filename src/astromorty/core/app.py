@@ -156,25 +156,88 @@ class AstromortyApp:
         owner_ids = self._resolve_owner_ids()
         self.bot = self._create_bot_instance(owner_ids)
 
-        try:
-            # Login and connect to Discord
-            # Note: discord.py automatically calls setup_hook() during login.
-            # connect() blocks until the connection is closed (e.g. via signal).
-            logger.info("Logging in to Discord...")
-            await self.bot.login(CONFIG.BOT_TOKEN)
+        # Start HTTP server if interactions endpoint is configured
+        http_server_task: asyncio.Task[Any] | None = None
+        if CONFIG.INTERACTIONS_ENDPOINT_URL:
+            http_server_task = await self._start_http_server()
 
-            logger.info("Connecting to Discord gateway...")
-            await self.bot.connect(reconnect=True)
+        try:
+            # Login and connect to Discord (unless HTTP-only mode)
+            if not CONFIG.HTTP_ONLY_MODE:
+                # Note: discord.py automatically calls setup_hook() during login.
+                # connect() blocks until the connection is closed (e.g. via signal).
+                logger.info("Logging in to Discord...")
+                await self.bot.login(CONFIG.BOT_TOKEN)
+
+                logger.info("Connecting to Discord gateway...")
+                await self.bot.connect(reconnect=True)
+            else:
+                logger.info("HTTP-only mode enabled, skipping Gateway connection")
+                # Keep the bot running for HTTP endpoints
+                # Wait indefinitely until shutdown signal
+                while not self._user_requested_shutdown:
+                    await asyncio.sleep(1)
 
         except Exception as e:
             logger.exception("Bot execution failed")
             capture_exception_safe(e)
             return 1
         finally:
+            # Stop HTTP server if running
+            if http_server_task and not http_server_task.done():
+                logger.info("Stopping HTTP server...")
+                http_server_task.cancel()
+                with contextlib.suppress(asyncio.CancelledError):
+                    await http_server_task
+
             # Perform custom cleanup (DB, HTTP, Tasks)
             await self.shutdown()
 
         return self._get_exit_code()
+
+    async def _start_http_server(self) -> asyncio.Task[Any]:
+        """
+        Start the HTTP server for Discord interactions.
+
+        Returns
+        -------
+        asyncio.Task[Any]
+            Background task running the HTTP server
+        """
+        import uvicorn
+        from astromorty.web.app import app
+
+        logger.info(
+            f"Starting HTTP server on {CONFIG.HTTP_SERVER_HOST}:{CONFIG.HTTP_SERVER_PORT}",
+        )
+
+        # Create server config
+        config = uvicorn.Config(
+            app,
+            host=CONFIG.HTTP_SERVER_HOST,
+            port=CONFIG.HTTP_SERVER_PORT,
+            log_level="info",
+            access_log=True,
+        )
+
+        # Create server instance
+        server = uvicorn.Server(config)
+
+        # Start server in background task
+        server_task = asyncio.create_task(server.serve())
+
+        # Store task reference
+        self._background_tasks.add(server_task)
+        server_task.add_done_callback(self._background_tasks.discard)
+
+        logger.success(
+            f"HTTP server started at http://{CONFIG.HTTP_SERVER_HOST}:{CONFIG.HTTP_SERVER_PORT}",
+        )
+        logger.info(
+            f"Interactions endpoint: {CONFIG.INTERACTIONS_ENDPOINT_URL}/interactions",
+        )
+
+        return server_task
 
     def _resolve_owner_ids(self) -> set[int]:
         """

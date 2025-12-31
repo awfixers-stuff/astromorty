@@ -1,5 +1,6 @@
 """Comprehensive error handler for Discord commands."""
 
+import asyncio
 import importlib
 import sys
 import traceback
@@ -10,6 +11,7 @@ from discord.ext import commands
 from loguru import logger
 
 from astromorty.core.bot import Astromorty
+from astromorty.database.utils import get_db_service_from
 from astromorty.services.sentry import (
     capture_exception_safe,
     set_command_context,
@@ -17,9 +19,11 @@ from astromorty.services.sentry import (
     track_command_end,
 )
 
+from .analytics import ErrorAnalyticsService
 from .config import ERROR_CONFIG_MAP, ErrorHandlerConfig
 from .extractors import unwrap_error
 from .formatter import ErrorFormatter
+from .recovery import is_transient_error, retry_with_backoff
 from .suggestions import CommandSuggester
 
 
@@ -93,10 +97,39 @@ class ErrorHandler(commands.Cog):
         # Log error
         self._log_error(root_error, config)
 
-        # Send user response if configured
+        # Extract context for analytics
+        guild_id = source.guild.id if hasattr(source, "guild") and source.guild else None
+        user_id = (
+            source.author.id
+            if isinstance(source, commands.Context)
+            else (source.user.id if source.user else None)
+        )
+        channel_id = (
+            source.channel.id if hasattr(source, "channel") and source.channel else None
+        )
+        command_name = (
+            source.command.qualified_name
+            if hasattr(source, "command") and source.command
+            else None
+        )
+        is_app_command = isinstance(source, discord.Interaction)
+
+        # Record error for analytics (non-blocking)
+        self._record_error_async(
+            root_error,
+            guild_id,
+            user_id,
+            channel_id,
+            command_name,
+            is_app_command,
+            config.send_to_sentry,
+            config.send_embed,
+        )
+
+        # Send user response if configured (with retry for transient errors)
         if config.send_embed:
-            embed = self.formatter.format_error_embed(root_error, source, config)
-            await self._send_error_response(source, embed)
+            embed = await self.formatter.format_error_embed(root_error, source, config)
+            await self._send_error_response_with_retry(source, embed)
 
         # Report to Sentry if configured
         if config.send_to_sentry:
@@ -176,6 +209,62 @@ class ErrorHandler(commands.Cog):
                 await source.reply(embed=embed, mention_author=False)
         except discord.HTTPException as e:
             logger.warning(f"Failed to send error response: {e}")
+
+    async def _send_error_response_with_retry(
+        self,
+        source: commands.Context[Astromorty] | discord.Interaction,
+        embed: discord.Embed,
+    ) -> None:
+        """Send error response with retry logic for transient errors."""
+        try:
+            await retry_with_backoff(self._send_error_response, source, embed)
+        except Exception as e:
+            # If retry fails, log but don't raise (we've already logged the original error)
+            logger.error(f"Failed to send error response after retries: {e}")
+
+    def _record_error_async(
+        self,
+        error: Exception,
+        guild_id: int | None,
+        user_id: int | None,
+        channel_id: int | None,
+        command_name: str | None,
+        is_app_command: bool,
+        sent_to_sentry: bool,
+        user_response_sent: bool,
+    ) -> None:
+        """Record error asynchronously without blocking error handling."""
+        # Create a task to record the error (fire and forget)
+        # This prevents analytics from blocking error responses
+        bot = self.bot
+        if not bot:
+            return
+
+        async def _record() -> None:
+            try:
+                db_service = get_db_service_from(bot)
+                if not db_service:
+                    return
+
+                async with db_service.session() as session:
+                    analytics = ErrorAnalyticsService(session)
+                    await analytics.record_error(
+                        error=error,
+                        guild_id=guild_id,
+                        user_id=user_id,
+                        channel_id=channel_id,
+                        command_name=command_name,
+                        is_app_command=is_app_command,
+                        sent_to_sentry=sent_to_sentry,
+                        user_response_sent=user_response_sent,
+                        metadata={"error_type": type(error).__name__},
+                    )
+            except Exception as e:
+                # Don't let analytics failures affect error handling
+                logger.debug(f"Failed to record error for analytics: {e}")
+
+        # Schedule the task (fire and forget)
+        asyncio.create_task(_record())
 
     @commands.Cog.listener("on_command_error")
     async def on_command_error(

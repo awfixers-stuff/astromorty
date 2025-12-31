@@ -139,6 +139,50 @@ class Config(BaseSettings):
         ),
     ]
 
+    # Discord HTTP endpoint configuration
+    DISCORD_PUBLIC_KEY: Annotated[
+        str,
+        Field(
+            default="",
+            description="Discord application public key (Ed25519 hex) for signature verification",
+            examples=[
+                "1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
+            ],
+        ),
+    ]
+    INTERACTIONS_ENDPOINT_URL: Annotated[
+        str,
+        Field(
+            default="",
+            description="Public URL for Discord interactions endpoint (e.g., https://your-domain.com/interactions)",
+            examples=["https://your-domain.com/interactions"],
+        ),
+    ]
+    HTTP_SERVER_HOST: Annotated[
+        str,
+        Field(
+            default="0.0.0.0",
+            description="HTTP server host address",
+            examples=["0.0.0.0", "127.0.0.1"],
+        ),
+    ]
+    HTTP_SERVER_PORT: Annotated[
+        int,
+        Field(
+            default=8000,
+            description="HTTP server port",
+            examples=[8000, 8080, 3000],
+        ),
+    ]
+    HTTP_ONLY_MODE: Annotated[
+        bool,
+        Field(
+            default=False,
+            description="Enable HTTP-only mode (disable WebSocket Gateway connection)",
+            examples=[False, True],
+        ),
+    ]
+
     # Database configuration (standard PostgreSQL env vars)
     POSTGRES_HOST: Annotated[
         str,

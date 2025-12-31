@@ -22,6 +22,7 @@ from .models import (
     AntinukeConfig,
     AntinukeEvent,
     Case,
+    ErrorEvent,
     Guild,
     GuildConfig,
     Levels,
@@ -73,6 +74,8 @@ __all__ = [
     # Antinuke system
     "AntinukeConfig",
     "AntinukeEvent",
+    # Error handling system
+    "ErrorEvent",
     # SSH Administration
     "SSHAdminKey",
     "SSHSession",

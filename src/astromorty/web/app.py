@@ -1,8 +1,8 @@
 """
-FastAPI Application Factory for Role Connections Web Server.
+FastAPI Application Factory for Astromorty Web Server.
 
 This module creates and configures the FastAPI application with all necessary
-middleware, routes, and error handlers for the role connections system.
+middleware, routes, and error handlers for Discord interactions and role connections.
 """
 
 from __future__ import annotations
@@ -49,8 +49,8 @@ def create_app() -> FastAPI:
         Configured FastAPI application instance
     """
     app = FastAPI(
-        title="Astromorty Role Connections",
-        description="Web server for Discord Role Connections OAuth flows",
+        title="Astromorty Web Server",
+        description="Web server for Discord interactions and role connections",
         version="1.0.0",
         lifespan=lifespan,
         docs_url="/docs" if CONFIG.debug else None,
@@ -65,6 +65,11 @@ def create_app() -> FastAPI:
         allow_methods=["GET", "POST"],
         allow_headers=["*"],
     )
+
+    # Include interactions router for Discord HTTP interactions
+    from astromorty.web.interactions import router as interactions_router
+
+    app.include_router(interactions_router)
 
     # Add health check endpoint
     @app.get("/health", response_class=HTMLResponse)

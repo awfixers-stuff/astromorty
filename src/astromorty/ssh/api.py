@@ -16,6 +16,7 @@ from loguru import logger
 from astromorty.database.models.ssh_admin import SSHAuditLog
 from astromorty.database.service import DatabaseService
 from astromorty.ssh.auth import SSHSessionInfo
+from astromorty.ssh.registry import ServiceRegistryManager
 
 
 class AdminAPI:
@@ -38,6 +39,11 @@ class AdminAPI:
         self.db_service = db_service
         self.user_id = user_id
         self._command_start_time: dict[str, float] = {}
+
+        # Initialize service registry
+        from astromorty.ssh.registry import ServiceRegistryManager
+
+        self.service_registry = ServiceRegistryManager(db_service)
 
     async def get_bot_status(self) -> dict[str, Any]:
         """Get current bot status information.
@@ -629,17 +635,20 @@ Use 'config set <key> <value>' to change value
             execution_time = self._command_start_time.get(command, time.time())
             execution_ms = int((time.time() - execution_time) * 1000)
 
+            # Create audit log entry
+            audit_log = SSHAuditLog(
+                session_id=f"session_{self.user_id}",  # Would be actual session ID
+                discord_user_id=self.user_id,
+                action="COMMAND",
+                command=command,
+                result=result[:1000],  # Limit result length
+                status=status,
+                execution_time_ms=execution_ms,
+                metadata={"args": command.split()},
+            )
+
+            # Save to database
             async with self.db_service.get_session() as session:
-                audit_log = SSHAuditLog(
-                    session_id=f"session_{self.user_id}",  # Would be actual session ID
-                    discord_user_id=self.user_id,
-                    action="COMMAND",
-                    command=command,
-                    result=result[:1000],  # Limit result length
-                    status=status,
-                    execution_time_ms=execution_ms,
-                    metadata={"args": command.split()},
-                )
                 session.add(audit_log)
                 await session.commit()
 

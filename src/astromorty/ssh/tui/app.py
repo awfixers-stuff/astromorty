@@ -284,12 +284,14 @@ class AdminTUIApp(App):
         """Background worker to update status information."""
         while worker.state == WorkerState.RUNNING:
             try:
-                # Update bot status
-                status_data = await self.api.get_bot_status()
-                self.bot_status = status_data
+                # Update bot status using service registry
+                service_registry = self.api.service_registry
+                bot_status = await service_registry.check_all_services_health()
+
+                self.bot_status = bot_status
 
                 # Update UI widgets
-                self._update_status_widgets(status_data)
+                self._update_status_widgets(bot_status)
 
                 # Sleep before next update
                 await asyncio.sleep(30)  # Update every 30 seconds
@@ -302,12 +304,14 @@ class AdminTUIApp(App):
         """Background worker to update service status."""
         while worker.state == WorkerState.RUNNING:
             try:
-                # Get service status
-                services_data = await self.api.get_services_status()
-                self.service_status = services_data
+                # Get service status using service registry
+                service_registry = self.api.service_registry
+                services_health = await service_registry.check_all_services_health()
+
+                self.service_status = services_health
 
                 # Update services table
-                self._update_services_table(services_data)
+                self._update_services_table(services_health)
 
                 # Sleep before next update
                 await asyncio.sleep(60)  # Update every minute
@@ -439,13 +443,39 @@ class AdminTUIApp(App):
         event.input.clear()
 
     async def run_ssh_session(self, ssh_process: Any) -> None:
-        """Run the TUI app over SSH process.
+        """Run TUI app over SSH process.
 
         Parameters
         ----------
         ssh_process : asyncssh.SSHServerProcess
-            SSH process to run the TUI on.
+            SSH process to run TUI on.
         """
+        # Store SSH process for communication
+        self._ssh_process = ssh_process
+
+        # Configure terminal
+        if hasattr(ssh_process, "set_terminal_type"):
+            ssh_process.set_terminal_type("xterm-256color")
+
+        if hasattr(ssh_process, "set_win_size"):
+            ssh_process.set_win_size(80, 24)
+
+        try:
+            # Run TUI application
+            async with self.run_async() as pilot:
+                # Redirect output to SSH process
+                self._redirect_output_to_ssh(pilot, ssh_process)
+
+                # Handle terminal resize
+                if hasattr(ssh_process, "set_win_size"):
+                    ssh_process.set_win_size(80, 24)
+
+                await asyncio.sleep(0.1)  # Give it time to start
+
+        except Exception as e:
+            if ssh_process.stdout:
+                ssh_process.stdout.write(f"\\nTUI Error: {e}\\n")
+            ssh_process.exit(1)
         # Store SSH process for output redirection
         self._ssh_process = ssh_process
 
