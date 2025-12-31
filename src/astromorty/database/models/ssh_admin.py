@@ -56,15 +56,26 @@ class SSHAdminKey(BaseModel):
 
     # Discord user association
     discord_user_id: Mapped[int] = mapped_column(
-        Integer,
-        nullable=False,
-        index=True,
-        description="Discord user ID who owns this key",
+        Integer, index=True, description="Discord user ID who owns this key"
     )
 
     # SSH key details
     key_type: Mapped[str] = mapped_column(
-        nullable=False, description="SSH key type (ssh-rsa, ssh-ed25519, etc.)"
+        description="SSH key type (ssh-rsa, ssh-ed25519, etc.)"
+    )
+
+    key_data: Mapped[str] = mapped_column(
+        description="SSH public key data (base64 encoded)"
+    )
+
+    key_comment: Mapped[str | None] = mapped_column(
+        default=None, description="Optional comment or name for key"
+    )
+
+    fingerprint: Mapped[str] = mapped_column(
+        unique=True,
+        index=True,
+        description="SHA256 fingerprint for unique identification",
     )
 
     key_data: Mapped[str] = mapped_column(

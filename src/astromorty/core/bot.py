@@ -106,6 +106,7 @@ class Astromorty(commands.Bot):
         self._db_coordinator: DatabaseCoordinator | None = None  # Cached coordinator
         self.sentry_manager = SentryManager()
         self.prefix_manager: Any | None = None  # Initialized during setup
+        self.ssh_service: Any | None = None  # Initialized during setup
 
         # UI components
         self.emoji_manager = EmojiManager(self)
@@ -151,18 +152,26 @@ class Astromorty(commands.Bot):
             await self.emoji_manager.init()
             self._emoji_manager_initialized = True
 
+        # Initialize SSH service
+        from astromorty.ssh.service import SSHService
+
+        self.ssh_service = SSHService(self.db_service)
+
         # Perform orchestrator setup (database, cogs, etc.)
         try:
             with start_span("bot.setup", "Bot setup process") as span:
                 orchestrator = BotSetupOrchestrator(self)
                 await orchestrator.setup(span)
 
+            # Start SSH service after bot setup is complete
+            await self.ssh_service.start()
+
             self.setup_complete = True
             logger.success("Bot setup completed successfully")
 
             # Tag success in Sentry for monitoring
             if self.sentry_manager.is_initialized:
-                # Boolean is the value being set, not a flag (Sentry API design)
+                # Boolean is value being set, not a flag (Sentry API design)
                 self.sentry_manager.set_tag("bot.setup_complete", True)
 
         except AstromortyDatabaseConnectionError as e:

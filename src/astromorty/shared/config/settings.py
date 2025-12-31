@@ -192,10 +192,10 @@ class Config(BaseSettings):
     ]
 
     # Bot info
-    BOT_INFO: BotInfo = Field(default_factory=BotInfo)  # type: ignore[arg-type]
+    BOT_INFO: BotInfo = Field(default=BotInfo())
 
     # User permissions
-    USER_IDS: UserIds = Field(default_factory=UserIds)  # type: ignore[arg-type]
+    USER_IDS: UserIds = Field(default=UserIds())
     ALLOW_SYSADMINS_EVAL: Annotated[
         bool,
         Field(
@@ -206,18 +206,18 @@ class Config(BaseSettings):
     ]
 
     # Features
-    STATUS_ROLES: StatusRoles = Field(default_factory=StatusRoles)  # type: ignore[arg-type]
-    TEMPVC: TempVC = Field(default_factory=TempVC)  # type: ignore[arg-type]
-    GIF_LIMITER: GifLimiter = Field(default_factory=GifLimiter)  # type: ignore[arg-type]
-    XP_CONFIG: XP = Field(default_factory=XP)  # type: ignore[arg-type]
-    SNIPPETS: Snippets = Field(default_factory=Snippets)  # type: ignore[arg-type]
-    IRC_CONFIG: IRC = Field(default_factory=IRC)  # type: ignore[arg-type]
+    STATUS_ROLES: StatusRoles = Field(default=StatusRoles())
+    TEMPVC: TempVC = Field(default=TempVC())
+    GIF_LIMITER: GifLimiter = Field(default=GifLimiter())
+    XP_CONFIG: XP = Field(default=XP())
+    SNIPPETS: Snippets = Field(default=Snippets())
+    IRC_CONFIG: IRC = Field(default=IRC())
 
     # External services
-    EXTERNAL_SERVICES: ExternalServices = Field(default_factory=ExternalServices)  # type: ignore[arg-type]
+    EXTERNAL_SERVICES: ExternalServices = Field(default=ExternalServices())
 
     # SSH administration
-    SSH: SSHConfig = Field(default_factory=SSHConfig)  # type: ignore[arg-type]
+    SSH: SSHConfig = Field(default=SSHConfig())
 
     @classmethod
     def settings_customise_sources(

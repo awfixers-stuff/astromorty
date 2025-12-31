@@ -58,3 +58,27 @@ class TicketStatus(str, Enum):
     WAITING_FOR_USER = "WAITING_FOR_USER"
     RESOLVED = "RESOLVED"
     CLOSED = "CLOSED"
+
+
+class AntinukeActionType(str, Enum):
+    """Types of actions that can trigger antinuke protection."""
+
+    CHANNEL_DELETE = "CHANNEL_DELETE"
+    ROLE_DELETE = "ROLE_DELETE"
+    MEMBER_BAN = "MEMBER_BAN"
+    MEMBER_KICK = "MEMBER_KICK"
+    MEMBER_PRUNE = "MEMBER_PRUNE"
+    WEBHOOK_CREATE = "WEBHOOK_CREATE"
+    WEBHOOK_DELETE = "WEBHOOK_DELETE"
+    CHANNEL_CREATE = "CHANNEL_CREATE"
+    ROLE_CREATE = "ROLE_CREATE"
+
+
+class AntinukeResponseType(str, Enum):
+    """Types of responses when antinuke is triggered."""
+
+    QUARANTINE = "QUARANTINE"
+    BAN = "BAN"
+    KICK = "KICK"
+    LOG_ONLY = "LOG_ONLY"
+    PANIC_MODE = "PANIC_MODE"

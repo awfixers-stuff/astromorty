@@ -26,7 +26,13 @@ from sqlalchemy.orm import Mapped, relationship
 from sqlmodel import Field, Relationship, SQLModel  # type: ignore[import]
 
 from .base import BaseModel
-from .enums import CaseType, OnboardingStage, TicketStatus
+from .enums import (
+    AntinukeActionType,
+    AntinukeResponseType,
+    CaseType,
+    OnboardingStage,
+    TicketStatus,
+)
 
 # =============================================================================
 # CORE GUILD MODELS
@@ -168,6 +174,16 @@ class Guild(BaseModel, table=True):
             cascade="all, delete",
             passive_deletes=True,
             lazy="selectin",
+        ),
+    )
+    antinuke_config = Relationship(
+        sa_relationship=relationship(
+            "AntinukeConfig",
+            back_populates="guild",
+            cascade="all, delete",
+            passive_deletes=True,
+            lazy="joined",
+            uselist=False,
         ),
     )
 
@@ -1425,3 +1441,330 @@ class Ticket(BaseModel, table=True):
     def __repr__(self) -> str:
         """Return string representation showing guild, ticket number, and creator."""
         return f"<Ticket id={self.id} guild={self.guild_id} num={self.ticket_number} creator={self.creator_id} status={self.status}>"
+
+
+# =============================================================================
+# ANTINUKE SYSTEM MODELS
+# =============================================================================
+
+
+class AntinukeConfig(BaseModel, table=True):
+    """Antinuke configuration for a guild.
+
+    Stores thresholds and response settings for antinuke protection,
+    which monitors and prevents mass destructive actions on Discord servers.
+
+    Attributes
+    ----------
+    id : int
+        Discord guild ID (primary key, foreign key to guild table).
+    enabled : bool
+        Whether antinuke protection is enabled for this guild.
+    quarantine_role_id : int, optional
+        Role ID to assign when quarantining users.
+    panic_mode_enabled : bool
+        Whether panic mode is enabled (locks down server).
+    log_channel_id : int, optional
+        Channel ID for antinuke event logs.
+    channel_delete_threshold : int
+        Number of channel deletions within time window to trigger protection.
+    role_delete_threshold : int
+        Number of role deletions within time window to trigger protection.
+    member_ban_threshold : int
+        Number of member bans within time window to trigger protection.
+    member_kick_threshold : int
+        Number of member kicks within time window to trigger protection.
+    member_prune_threshold : int
+        Number of members pruned within time window to trigger protection.
+    webhook_create_threshold : int
+        Number of webhooks created within time window to trigger protection.
+    webhook_delete_threshold : int
+        Number of webhooks deleted within time window to trigger protection.
+    time_window_seconds : int
+        Time window in seconds for counting actions.
+    response_type : AntinukeResponseType
+        Default response type when threshold is exceeded.
+    whitelisted_user_ids : list[int]
+        List of user IDs exempt from antinuke protection.
+    whitelisted_role_ids : list[int]
+        List of role IDs exempt from antinuke protection.
+    """
+
+    __tablename__ = "antinuke_config"
+
+    id: int = Field(
+        primary_key=True,
+        foreign_key="guild.id",
+        ondelete="CASCADE",
+        sa_type=BigInteger,
+        description="Discord guild ID (links to guild table)",
+    )
+
+    enabled: bool = Field(
+        default=False,
+        description="Whether antinuke protection is enabled",
+    )
+
+    quarantine_role_id: int | None = Field(
+        default=None,
+        sa_type=BigInteger,
+        description="Role ID to assign when quarantining users",
+    )
+
+    panic_mode_enabled: bool = Field(
+        default=False,
+        description="Whether panic mode is enabled (locks down server)",
+    )
+
+    log_channel_id: int | None = Field(
+        default=None,
+        sa_type=BigInteger,
+        description="Channel ID for antinuke event logs",
+    )
+
+    # Thresholds for different action types
+    channel_delete_threshold: int = Field(
+        default=5,
+        ge=1,
+        sa_type=Integer,
+        description="Number of channel deletions within time window to trigger protection",
+    )
+    role_delete_threshold: int = Field(
+        default=5,
+        ge=1,
+        sa_type=Integer,
+        description="Number of role deletions within time window to trigger protection",
+    )
+    member_ban_threshold: int = Field(
+        default=10,
+        ge=1,
+        sa_type=Integer,
+        description="Number of member bans within time window to trigger protection",
+    )
+    member_kick_threshold: int = Field(
+        default=10,
+        ge=1,
+        sa_type=Integer,
+        description="Number of member kicks within time window to trigger protection",
+    )
+    member_prune_threshold: int = Field(
+        default=50,
+        ge=1,
+        sa_type=Integer,
+        description="Number of members pruned within time window to trigger protection",
+    )
+    webhook_create_threshold: int = Field(
+        default=10,
+        ge=1,
+        sa_type=Integer,
+        description="Number of webhooks created within time window to trigger protection",
+    )
+    webhook_delete_threshold: int = Field(
+        default=10,
+        ge=1,
+        sa_type=Integer,
+        description="Number of webhooks deleted within time window to trigger protection",
+    )
+
+    time_window_seconds: int = Field(
+        default=60,
+        ge=1,
+        sa_type=Integer,
+        description="Time window in seconds for counting actions",
+    )
+
+    response_type: AntinukeResponseType = Field(
+        default=AntinukeResponseType.QUARANTINE,
+        sa_column=Column(
+            PgEnum(AntinukeResponseType, name="antinuke_response_type_enum"),
+            nullable=False,
+        ),
+        description="Default response type when threshold is exceeded",
+    )
+
+    whitelisted_user_ids: list[int] = Field(
+        default_factory=list,
+        sa_type=JSON,
+        description="List of user IDs exempt from antinuke protection",
+    )
+
+    whitelisted_role_ids: list[int] = Field(
+        default_factory=list,
+        sa_type=JSON,
+        description="List of role IDs exempt from antinuke protection",
+    )
+
+    guild: Mapped[Guild] = Relationship(
+        sa_relationship=relationship(back_populates="antinuke_config"),
+    )
+
+    __table_args__ = (
+        CheckConstraint("id > 0", name="check_antinuke_config_guild_id_valid"),
+        CheckConstraint(
+            "channel_delete_threshold > 0",
+            name="check_channel_delete_threshold_positive",
+        ),
+        CheckConstraint(
+            "role_delete_threshold > 0",
+            name="check_role_delete_threshold_positive",
+        ),
+        CheckConstraint(
+            "member_ban_threshold > 0",
+            name="check_member_ban_threshold_positive",
+        ),
+        CheckConstraint(
+            "member_kick_threshold > 0",
+            name="check_member_kick_threshold_positive",
+        ),
+        CheckConstraint(
+            "member_prune_threshold > 0",
+            name="check_member_prune_threshold_positive",
+        ),
+        CheckConstraint(
+            "webhook_create_threshold > 0",
+            name="check_webhook_create_threshold_positive",
+        ),
+        CheckConstraint(
+            "webhook_delete_threshold > 0",
+            name="check_webhook_delete_threshold_positive",
+        ),
+        CheckConstraint(
+            "time_window_seconds > 0",
+            name="check_time_window_seconds_positive",
+        ),
+        Index("idx_antinuke_config_guild", "id"),
+    )
+
+    def __repr__(self) -> str:
+        """Return string representation showing guild ID and enabled status."""
+        return f"<AntinukeConfig id={self.id} enabled={self.enabled}>"
+
+
+class AntinukeEvent(BaseModel, table=True):
+    """Antinuke event log entry.
+
+    Records all antinuke protection events including detected actions,
+    threshold violations, and responses taken.
+
+    Attributes
+    ----------
+    id : int
+        Primary key identifier.
+    guild_id : int
+        Discord guild ID where the event occurred.
+    user_id : int
+        Discord user ID who performed the action.
+    action_type : AntinukeActionType
+        Type of action that was detected.
+    action_count : int
+        Number of actions of this type within the time window.
+    threshold : int
+        Threshold that was exceeded.
+    response_type : AntinukeResponseType
+        Response action that was taken.
+    response_executed : bool
+        Whether the response was successfully executed.
+    response_error : str, optional
+        Error message if response execution failed.
+    metadata : dict[str, Any], optional
+        Additional metadata about the event (channel IDs, role IDs, etc.).
+    timestamp : datetime
+        When the event occurred.
+    """
+
+    __tablename__ = "antinuke_events"
+
+    id: int = Field(
+        primary_key=True,
+        sa_type=Integer,
+        description="Primary key identifier",
+    )
+
+    guild_id: int = Field(
+        nullable=False,
+        index=True,
+        sa_type=BigInteger,
+        description="Discord guild ID where the event occurred",
+    )
+
+    user_id: int = Field(
+        nullable=False,
+        index=True,
+        sa_type=BigInteger,
+        description="Discord user ID who performed the action",
+    )
+
+    action_type: AntinukeActionType = Field(
+        nullable=False,
+        sa_column=Column(
+            PgEnum(AntinukeActionType, name="antinuke_action_type_enum"),
+            nullable=False,
+        ),
+        description="Type of action that was detected",
+    )
+
+    action_count: int = Field(
+        nullable=False,
+        ge=0,
+        sa_type=Integer,
+        description="Number of actions of this type within the time window",
+    )
+
+    threshold: int = Field(
+        nullable=False,
+        ge=1,
+        sa_type=Integer,
+        description="Threshold that was exceeded",
+    )
+
+    response_type: AntinukeResponseType = Field(
+        nullable=False,
+        sa_column=Column(
+            PgEnum(AntinukeResponseType, name="antinuke_response_type_enum"),
+            nullable=False,
+        ),
+        description="Response action that was taken",
+    )
+
+    response_executed: bool = Field(
+        default=False,
+        description="Whether the response was successfully executed",
+    )
+
+    response_error: str | None = Field(
+        default=None,
+        description="Error message if response execution failed",
+    )
+
+    metadata: dict[str, Any] | None = Field(
+        default=None,
+        sa_type=JSON,
+        description="Additional metadata about the event",
+    )
+
+    timestamp: datetime = Field(
+        default_factory=lambda: datetime.now(UTC),
+        sa_type=DateTime(timezone=True),
+        description="When the event occurred",
+    )
+
+    __table_args__ = (
+        CheckConstraint("guild_id > 0", name="check_antinuke_event_guild_id_valid"),
+        CheckConstraint("user_id > 0", name="check_antinuke_event_user_id_valid"),
+        CheckConstraint(
+            "action_count >= 0",
+            name="check_antinuke_event_action_count_non_negative",
+        ),
+        CheckConstraint(
+            "threshold > 0",
+            name="check_antinuke_event_threshold_positive",
+        ),
+        Index("idx_antinuke_event_guild", "guild_id"),
+        Index("idx_antinuke_event_user", "user_id"),
+        Index("idx_antinuke_event_timestamp", "timestamp"),
+        Index("idx_antinuke_event_guild_user", "guild_id", "user_id"),
+    )
+
+    def __repr__(self) -> str:
+        """Return string representation showing guild, user, and action type."""
+        return f"<AntinukeEvent id={self.id} guild={self.guild_id} user={self.user_id} action={self.action_type.value}>"
