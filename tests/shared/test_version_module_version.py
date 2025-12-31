@@ -4,8 +4,8 @@
 Tests for the module-level __version__ constant.
 """
 
-from tux import __version__
-from tux.shared.version import get_version
+from astromorty import __version__
+from astromorty.shared.version import get_version
 
 
 class TestModuleVersion:

@@ -6,7 +6,7 @@ Tests for utility functions used by error extractors.
 
 from unittest.mock import MagicMock
 
-from tux.services.handlers.error.extractors import (
+from astromorty.services.handlers.error.extractors import (
     fallback_format_message,
     format_list,
     unwrap_error,

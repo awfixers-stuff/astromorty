@@ -14,16 +14,20 @@ tags:
 Configure database connection settings for Tux. For installation instructions, see [Bare Metal Installation](../install/baremetal.md).
 
 !!! tip "Quick Start"
-    If you're using Docker Compose, the database is configured automatically. Just set your `POSTGRES_PASSWORD` in `.env` and start services.
+    Tux supports both local PostgreSQL (via Docker Compose) and managed services like **Supabase**. For Supabase, simply set your `DATABASE_URL` in `.env` and you're ready to go!
 
 ## Configuration Details
 
-The `compose.yaml` includes a PostgreSQL service (`tux-postgres`) using the Alpine-based `postgres:17-alpine` image with optimized settings (256MB shared buffers, 100 max connections, UTC timezone). Connection details:
+### Local PostgreSQL (Docker Compose)
 
-!!! note "Base Images"
-    The Tux application uses `python:3.13.8-slim` (Debian-based), while PostgreSQL uses `postgres:17-alpine` (Alpine-based) for a smaller database image size.
+The `compose.yaml` includes an **optional** PostgreSQL service (`tux-postgres`) using the Alpine-based `postgres:17-alpine` image. This is disabled by default when using Supabase.
 
-- **Host:** `tux-postgres` (Docker network)
+!!! note "Using Supabase?"
+    If you're using Supabase, the local PostgreSQL service in `compose.yaml` is commented out. Uncomment it only if you want to use local PostgreSQL instead.
+
+**Local PostgreSQL Connection Details:**
+
+- **Host:** `tux-postgres` (Docker network) or `localhost` (bare metal)
 - **Database:** `tuxdb` (from `POSTGRES_DB`)
 - **User:** `tuxuser` (from `POSTGRES_USER`)
 - **Password:** From `POSTGRES_PASSWORD` environment variable
@@ -37,6 +41,14 @@ POSTGRES_USER=tuxuser
 POSTGRES_PASSWORD=your_secure_password_here
 POSTGRES_PORT=5432
 POSTGRES_HOST=tux-postgres
+```
+
+### Supabase (Recommended)
+
+When using Supabase, configure via `DATABASE_URL`:
+
+```env
+DATABASE_URL=postgresql://postgres:[YOUR-PASSWORD]@db.[PROJECT-REF].supabase.co:5432/postgres
 ```
 
 !!! tip "Configuration Priority"
@@ -82,7 +94,38 @@ DATABASE_URL=postgresql://tuxuser:password@localhost:5432/tuxdb
 
 ### External Database Services
 
-Tux works with managed PostgreSQL services (AWS RDS, DigitalOcean, Railway, Supabase, etc.). Use `DATABASE_URL` format:
+Tux works with managed PostgreSQL services. **Supabase is recommended** and fully supported with automatic SSL handling.
+
+#### Supabase (Recommended)
+
+Supabase provides a fully managed PostgreSQL database with automatic SSL, backups, and a great developer experience.
+
+**Setup:**
+
+1. Create a project at [supabase.com](https://supabase.com)
+2. Go to **Settings** → **Database** → **Connection string**
+3. Copy the **URI** connection string (starts with `postgresql://`)
+4. Add to your `.env`:
+
+```env
+# Supabase connection (SSL automatically handled)
+DATABASE_URL=postgresql://postgres:[YOUR-PASSWORD]@db.[PROJECT-REF].supabase.co:5432/postgres?sslmode=require
+```
+
+!!! tip "Supabase SSL"
+    Tux automatically detects Supabase URLs and adds SSL requirements if missing. You can also manually add `?sslmode=require` to your connection string.
+
+**Optional Supabase Configuration:**
+
+```env
+# Supabase project URL (for future Supabase client features)
+EXTERNAL_SERVICES__SUPABASE_URL=https://[PROJECT-REF].supabase.co
+EXTERNAL_SERVICES__SUPABASE_KEY=your-anon-or-service-role-key
+```
+
+#### Other Managed Services
+
+Tux also works with other managed PostgreSQL services:
 
 ```env
 # Example: AWS RDS
@@ -90,10 +133,13 @@ DATABASE_URL=postgresql://tuxuser:password@your-instance.region.rds.amazonaws.co
 
 # Example: DigitalOcean
 DATABASE_URL=postgresql://tuxuser:password@your-host.db.ondigitalocean.com:25060/tuxdb?sslmode=require
+
+# Example: Railway
+DATABASE_URL=postgresql://postgres:password@containers-us-west-xxx.railway.app:5432/railway?sslmode=require
 ```
 
 !!! tip "SSL Connections"
-    Most managed databases require SSL. Add `?sslmode=require` to your connection URL.
+    Most managed databases require SSL. Tux automatically adds `?sslmode=require` for Supabase URLs. For other services, add it manually to your connection string.
 
 ## Security Best Practices
 

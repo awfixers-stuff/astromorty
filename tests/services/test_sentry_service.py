@@ -6,10 +6,10 @@ import discord
 import httpx
 import pytest
 
-from tux.services.sentry import (
+from astromorty.services.sentry import (
     capture_database_error,
     capture_exception_safe,
-    capture_tux_exception,
+    capture_astromorty_exception,
     convert_httpx_error,
     set_command_context,
     set_context,
@@ -18,13 +18,13 @@ from tux.services.sentry import (
     track_command_end,
     track_command_start,
 )
-from tux.shared.exceptions import (
-    TuxAPIConnectionError,
-    TuxAPIPermissionError,
-    TuxAPIRequestError,
-    TuxAPIResourceNotFoundError,
-    TuxDatabaseError,
-    TuxError,
+from astromorty.shared.exceptions import (
+    AstromortyAPIConnectionError,
+    AstromortyAPIPermissionError,
+    AstromortyAPIRequestError,
+    AstromortyAPIResourceNotFoundError,
+    AstromortyDatabaseError,
+    AstromortyError,
 )
 
 
@@ -64,9 +64,9 @@ class TestSentryCaptureFunctions:
     @patch("tux.services.sentry.utils.is_initialized")
     @patch("tux.services.sentry.utils.sentry_sdk")
     def test_capture_tux_exception(self, mock_sentry_sdk, mock_is_initialized) -> None:
-        """Test capture_tux_exception with TuxError."""
+        """Test capture_tux_exception with AstromortyError."""
         mock_is_initialized.return_value = True
-        error = TuxError("Test Tux error")
+        error = AstromortyError("Test Astromorty error")
 
         capture_tux_exception(error)
 
@@ -109,7 +109,7 @@ class TestSentryCaptureFunctions:
             response=mock_response,
         )
 
-        with pytest.raises(TuxAPIResourceNotFoundError) as exc_info:
+        with pytest.raises(AstromortyAPIResourceNotFoundError) as exc_info:
             convert_httpx_error(
                 error,
                 service_name="GitHub",
@@ -172,7 +172,7 @@ class TestSentryCaptureFunctions:
             response=mock_response,
         )
 
-        with pytest.raises(TuxAPIRequestError) as exc_info:
+        with pytest.raises(AstromortyAPIRequestError) as exc_info:
             convert_httpx_error(
                 error,
                 service_name="GitHub",
@@ -200,7 +200,7 @@ class TestSentryCaptureFunctions:
 
         error = httpx.RequestError("Connection failed", request=MagicMock())
 
-        with pytest.raises(TuxAPIConnectionError) as exc_info:
+        with pytest.raises(AstromortyAPIConnectionError) as exc_info:
             convert_httpx_error(
                 error,
                 service_name="GitHub",

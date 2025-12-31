@@ -97,7 +97,7 @@ The main module is typically invoked through the CLI system (`scripts/tux/start.
 
 ```bash
 # CLI invocation (recommended)
-uv run tux start
+uv run astromorty start
 
 # Direct module execution (fallback)
 python -m tux.main
@@ -173,10 +173,10 @@ graph TD
 
 ```bash
 # Standard development startup
-uv run tux start
+uv run astromorty start
 
 # With debug logging
-LOG_LEVEL=DEBUG uv run tux start
+LOG_LEVEL=DEBUG uv run astromorty start
 
 # Direct execution for testing
 python -m tux.main
@@ -204,7 +204,7 @@ python -m tux.main
 
 ```bash
 # Enable detailed error logging
-LOG_LEVEL=DEBUG uv run tux start 2>&1 | grep -E "(ERROR|CRITICAL|❌)"
+LOG_LEVEL=DEBUG uv run astromorty start 2>&1 | grep -E "(ERROR|CRITICAL|❌)"
 ```
 
 ### Testing Entry Point
@@ -289,20 +289,20 @@ python -c "from tux.main import run; print('Import successful')"
 
 ```bash
 # Capture exit code
-uv run tux start; echo "Exit code: $?"
+uv run astromorty start; echo "Exit code: $?"
 
 # Debug with verbose output
-uv run tux start --debug 2>&1 | tail -20
+uv run astromorty start --debug 2>&1 | tail -20
 ```
 
 **Signal Handling:**
 
 ```bash
 # Test SIGINT handling
-timeout 5 uv run tux start; echo "Exit code: $?"
+timeout 5 uv run astromorty start; echo "Exit code: $?"
 
 # Check signal processing
-uv run tux start &
+uv run astromorty start &
 sleep 2
 kill -INT $!
 wait $!

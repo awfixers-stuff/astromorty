@@ -6,8 +6,8 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
-from tux.services.handlers.error.cog import ErrorHandler
-from tux.shared.exceptions import TuxError, TuxPermissionDeniedError
+from astromorty.services.handlers.error.cog import ErrorHandler
+from astromorty.shared.exceptions import AstromortyError, AstromortyPermissionDeniedError
 
 
 class TestErrorHandlingEndToEnd:
@@ -47,7 +47,7 @@ class TestErrorHandlingEndToEnd:
 
     @pytest.mark.asyncio
     async def test_tux_error_shows_custom_message(self, error_handler):
-        """Test that TuxError shows default message (not custom)."""
+        """Test that AstromortyError shows default message (not custom)."""
         mock_ctx = MagicMock()
         mock_ctx.reply = AsyncMock()
         mock_ctx.command = MagicMock()
@@ -55,11 +55,11 @@ class TestErrorHandlingEndToEnd:
         mock_ctx.command.has_error_handler.return_value = False
         mock_ctx.cog = None
 
-        error = TuxError("Custom error message")
+        error = AstromortyError("Custom error message")
 
         await error_handler.on_command_error(mock_ctx, error)
 
-        # Verify response was sent (TuxError uses default message)
+        # Verify response was sent (AstromortyError uses default message)
         mock_ctx.reply.assert_called_once()
         call_args = mock_ctx.reply.call_args
         embed = call_args.kwargs["embed"]
@@ -106,7 +106,7 @@ class TestErrorHandlingEndToEnd:
         mock_ctx.guild = mock_guild
 
         # Simulate unconfigured command (both ranks are 0)
-        error = TuxPermissionDeniedError(
+        error = AstromortyPermissionDeniedError(
             required_rank=0,
             user_rank=0,
             command_name="dev clear_tree",
@@ -137,7 +137,7 @@ class TestErrorHandlingEndToEnd:
         mock_ctx.cog = None
 
         # Simulate insufficient rank
-        error = TuxPermissionDeniedError(
+        error = AstromortyPermissionDeniedError(
             required_rank=5,
             user_rank=2,
             command_name="ban",
@@ -168,7 +168,7 @@ class TestErrorHandlingEndToEnd:
         mock_interaction.command.qualified_name = "config"
 
         # Simulate permission denied for slash command
-        error = TuxPermissionDeniedError(
+        error = AstromortyPermissionDeniedError(
             required_rank=3,
             user_rank=1,
             command_name="config",

@@ -1,6 +1,6 @@
 # AGENTS.md
 
-**Tux** is an all-in-one open source Discord bot for the [All Things Linux](https://allthingslinux.org) community.
+**Astromorty** is an all-in-one open source Discord bot for the [All Things Linux](https://allthingslinux.org) community.
 
 ## Tech Stack
 
@@ -37,7 +37,7 @@ uv run ai validate-rules      # Validate all rules and commands
 uv sync
 uv run config generate
 cp .env.example .env && cp config/config.toml.example config/config.toml
-uv run tux start
+uv run astromorty start
 ```
 
 ## Project Structure
@@ -112,8 +112,8 @@ uv run db nuke              # Complete wipe (dangerous)
 **Bot:**
 
 ```bash
-uv run tux start            # Start bot
-uv run tux start --debug    # Debug mode
+uv run astromorty start            # Start bot
+uv run astromorty start --debug    # Debug mode
 ```
 
 **Docs:**
@@ -212,6 +212,7 @@ refactor(database): optimize query performance
 - Role-based permissions
 - Rich embeds
 - Cooldowns & rate limiting
+- **Discord API Documentation:** Reference `@discord-api-docs` for official Discord API documentation, endpoints, and specifications
 
 ## Security & Performance
 
@@ -260,3 +261,4 @@ uv run ai validate-rules
 - **Issues:** <https://github.com/allthingslinux/tux/issues>
 - **Discord:** <https://discord.gg/gpmSjcjQxg>
 - **Repo:** <https://github.com/allthingslinux/tux>
+- **Discord API Docs:** `@discord-api-docs` - Local copy of official Discord API documentation in `external/discord-api-docs/`

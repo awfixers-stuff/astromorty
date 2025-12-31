@@ -11,8 +11,8 @@ Tests follow the established patterns from test_database_controllers.py
 
 import pytest
 
-from tux.core.permission_system import RESTRICTED_COMMANDS, PermissionSystem
-from tux.database.controllers import (
+from astromorty.core.permission_system import RESTRICTED_COMMANDS, PermissionSystem
+from astromorty.database.controllers import (
     GuildController,
     PermissionAssignmentController,
     PermissionCommandController,

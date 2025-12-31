@@ -6,7 +6,7 @@ Tests for permission-related error extractors.
 
 from unittest.mock import MagicMock
 
-from tux.services.handlers.error.extractors import (
+from astromorty.services.handlers.error.extractors import (
     extract_permission_denied_details,
     extract_permissions_details,
 )

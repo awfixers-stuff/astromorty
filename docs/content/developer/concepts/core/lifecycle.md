@@ -277,7 +277,7 @@ Check for import errors or syntax issues:
 
 ```bash
 python -c "import tux.modules.moderation.ban"
-LOG_LEVEL=DEBUG uv run tux start
+LOG_LEVEL=DEBUG uv run astromorty start
 ```
 
 ### Slow Startup

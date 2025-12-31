@@ -20,7 +20,7 @@ from scripts.ui import (
     print_success,
     rich_print,
 )
-from tux.database.service import DatabaseService
+from astromorty.database.service import DatabaseService
 
 app = create_app()
 

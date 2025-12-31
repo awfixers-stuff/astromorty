@@ -6,7 +6,7 @@ Tests for extractors with actual Discord.py/httpx error objects.
 
 import httpx
 
-from tux.services.handlers.error.extractors import extract_httpx_status_details
+from astromorty.services.handlers.error.extractors import extract_httpx_status_details
 
 
 class TestExtractorsWithRealErrors:

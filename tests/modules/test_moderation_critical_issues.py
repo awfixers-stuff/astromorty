@@ -24,14 +24,14 @@ import pytest
 from discord.ext import commands
 from sqlmodel import select
 
-from tux.core.bot import Tux
-from tux.database.controllers import DatabaseCoordinator
-from tux.database.models import Case, Guild
-from tux.database.models import CaseType as DBCaseType
-from tux.services.moderation.case_service import CaseService
-from tux.services.moderation.communication_service import CommunicationService
-from tux.services.moderation.execution_service import ExecutionService
-from tux.services.moderation.moderation_coordinator import ModerationCoordinator
+from astromorty.core.bot import Astromorty
+from astromorty.database.controllers import DatabaseCoordinator
+from astromorty.database.models import Case, Guild
+from astromorty.database.models import CaseType as DBCaseType
+from astromorty.services.moderation.case_service import CaseService
+from astromorty.services.moderation.communication_service import CommunicationService
+from astromorty.services.moderation.execution_service import ExecutionService
+from astromorty.services.moderation.moderation_coordinator import ModerationCoordinator
 
 
 class TestCriticalIssuesIntegration:
@@ -70,7 +70,7 @@ class TestCriticalIssuesIntegration:
     @pytest.fixture
     def mock_bot(self):
         """Create a mock Discord bot."""
-        bot = MagicMock(spec=Tux)
+        bot = MagicMock(spec=Astromorty)
         bot.user = MagicMock()
         bot.user.id = 123456789  # Mock bot user ID
         return bot

@@ -14,8 +14,8 @@ from tests.fixtures import (
     validate_guild_config_structure,
     validate_guild_structure,
 )
-from tux.database.models.models import Case, CaseType, Guild, GuildConfig
-from tux.database.service import DatabaseService
+from astromorty.database.models.models import Case, CaseType, Guild, GuildConfig
+from astromorty.database.service import DatabaseService
 
 
 class TestModelCreation:

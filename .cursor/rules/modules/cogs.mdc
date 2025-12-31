@@ -284,3 +284,4 @@ class CreateSnippet(SnippetsBaseCog):
 - @modules/permissions.mdc - Permission patterns
 - @AGENTS.md - General coding standards
 - @rules.mdc - Complete catalog of all rules and commands
+- @discord-api-docs - Official Discord API documentation for endpoints, events, and specifications

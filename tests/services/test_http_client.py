@@ -5,10 +5,10 @@ from unittest.mock import MagicMock
 import httpx
 import pytest
 
-from tux.modules.info.avatar import Avatar
-from tux.modules.utility.wiki import Wiki
-from tux.services.http_client import HTTPClient, http_client
-from tux.services.wrappers import godbolt, wandbox
+from astromorty.modules.info.avatar import Avatar
+from astromorty.modules.utility.wiki import Wiki
+from astromorty.services.http_client import HTTPClient, http_client
+from astromorty.services.wrappers import godbolt, wandbox
 
 
 class TestHTTPClient:
@@ -116,7 +116,7 @@ class TestHTTPClient:
         await client.get("https://test.example.com")
 
         request = httpx_mock.get_request()
-        assert "Tux-Bot/" in request.headers["User-Agent"]
+        assert "Astromorty-Bot/" in request.headers["User-Agent"]
         assert "github.com/allthingslinux/tux" in request.headers["User-Agent"]
 
 
@@ -269,7 +269,7 @@ class TestHTTPClientErrorScenarios:
         request = httpx_mock.get_request()
         assert request.headers["Authorization"] == "Bearer token123"
         # Should still have the default User-Agent
-        assert "Tux-Bot/" in request.headers["User-Agent"]
+        assert "Astromorty-Bot/" in request.headers["User-Agent"]
 
 
 @pytest.mark.asyncio

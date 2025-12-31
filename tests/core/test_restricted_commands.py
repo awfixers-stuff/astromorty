@@ -10,7 +10,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from tux.core.permission_system import RESTRICTED_COMMANDS, PermissionSystem
+from astromorty.core.permission_system import RESTRICTED_COMMANDS, PermissionSystem
 
 
 class TestRestrictedCommands:

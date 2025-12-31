@@ -42,9 +42,18 @@ Configure Tux using environment variables for different deployment scenarios.
 
 ### Database Configuration
 
-Tux uses PostgreSQL. You can configure it using individual variables or a connection URL:
+Tux uses PostgreSQL. **Supabase is recommended** for managed PostgreSQL with automatic SSL and backups.
 
-#### Option 1: Individual PostgreSQL Variables (Recommended)
+#### Option 1: Supabase (Recommended)
+
+    # Supabase connection string (SSL automatically handled)
+    DATABASE_URL=postgresql://postgres:[YOUR-PASSWORD]@db.[PROJECT-REF].supabase.co:5432/postgres
+
+    # Optional: Supabase project URL and API key
+    EXTERNAL_SERVICES__SUPABASE_URL=https://[PROJECT-REF].supabase.co
+    EXTERNAL_SERVICES__SUPABASE_KEY=your-anon-or-service-role-key
+
+#### Option 2: Individual PostgreSQL Variables (Local/Manual Setup)
 
     POSTGRES_HOST=localhost
     POSTGRES_PORT=5432
@@ -52,13 +61,16 @@ Tux uses PostgreSQL. You can configure it using individual variables or a connec
     POSTGRES_USER=tuxuser
     POSTGRES_PASSWORD=your_secure_password_here
 
-#### Option 2: Database URL Override
+#### Option 3: Database URL Override (Other Managed Services)
 
     # Custom database URL (overrides individual POSTGRES_* variables)
-    DATABASE_URL=postgresql://user:password@localhost:5432/tuxdb
+    DATABASE_URL=postgresql://user:password@host:port/database?sslmode=require
+
+!!! tip "Supabase Setup"
+    Get your connection string from Supabase Dashboard → Settings → Database → Connection string (URI format).
 
 !!! warning "Security"
-    Always use strong passwords for PostgreSQL. The default password is insecure and should be changed immediately.
+    Always use strong passwords for PostgreSQL. Never commit database credentials to version control.
 
 ## Logging Configuration
 
@@ -157,6 +169,30 @@ Tux uses PostgreSQL. You can configure it using individual variables or a connec
     EXTERNAL_SERVICES__INFLUXDB_TOKEN=your_token
     EXTERNAL_SERVICES__INFLUXDB_ORG=your_org
 
+### Supabase (Database & Backend)
+
+    # Supabase project URL (optional, for future Supabase client features)
+    EXTERNAL_SERVICES__SUPABASE_URL=https://[PROJECT-REF].supabase.co
+
+    # Supabase anon or service role key (optional)
+    EXTERNAL_SERVICES__SUPABASE_KEY=your-anon-or-service-role-key
+
+!!! note "Supabase Database Connection"
+    The main Supabase database connection is configured via `DATABASE_URL` (see Database Configuration above).
+    These variables are for optional Supabase client features.
+
+### Redis (Caching - Upstash Recommended)
+
+    # Redis connection URL (Upstash or other Redis-compatible service)
+    EXTERNAL_SERVICES__REDIS_URL=redis://default:password@host:port
+
+    # Example: Upstash Redis
+    EXTERNAL_SERVICES__REDIS_URL=redis://default:[YOUR-PASSWORD]@[YOUR-ENDPOINT].upstash.io:6379
+
+!!! tip "Upstash Redis"
+    Get your Redis connection string from Upstash Dashboard → Your Database → Redis Details → REST API URL.
+    Use the format: `redis://default:[PASSWORD]@[ENDPOINT]:6379`
+
 ### Other Services
 
     # Mailcow API
@@ -225,7 +261,7 @@ Tux uses PostgreSQL. You can configure it using individual variables or a connec
 
     # Load environment and test
     source .env
-    uv run tux start --debug
+    uv run astromorty start --debug
 
 ## Troubleshooting
 

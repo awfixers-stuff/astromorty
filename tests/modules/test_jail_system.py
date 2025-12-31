@@ -13,9 +13,9 @@ from unittest.mock import MagicMock
 import discord
 import pytest
 
-from tux.database.controllers import CaseController
-from tux.database.models import CaseType
-from tux.modules.moderation.jail import Jail
+from astromorty.database.controllers import CaseController
+from astromorty.database.models import CaseType
+from astromorty.modules.moderation.jail import Jail
 
 
 def create_mock_role(role_id: int, name: str, **kwargs) -> MagicMock:

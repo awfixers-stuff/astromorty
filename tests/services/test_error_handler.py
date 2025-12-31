@@ -7,9 +7,9 @@ import discord
 import pytest
 from discord.ext import commands
 
-from tux.services.handlers.error.cog import ErrorHandler
-from tux.services.handlers.error.config import ErrorHandlerConfig
-from tux.shared.exceptions import TuxPermissionError
+from astromorty.services.handlers.error.cog import ErrorHandler
+from astromorty.services.handlers.error.config import ErrorHandlerConfig
+from astromorty.shared.exceptions import AstromortyPermissionError
 
 
 class TestErrorHandler:
@@ -65,7 +65,7 @@ class TestErrorHandler:
 
     def test_get_error_config_parent_class_match(self, error_handler) -> None:
         """Test _get_error_config with parent class match."""
-        error = TuxPermissionError("test")
+        error = AstromortyPermissionError("test")
         config = error_handler._get_error_config(error)
 
         assert isinstance(config, ErrorHandlerConfig)

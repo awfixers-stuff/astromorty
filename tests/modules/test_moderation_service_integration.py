@@ -22,15 +22,15 @@ import discord
 import pytest
 from discord.ext import commands
 
-from tux.core.bot import Tux
-from tux.core.flags import CaseModifyFlags
-from tux.database.models import Case, CaseType
-from tux.database.models import CaseType as DBCaseType
-from tux.modules.moderation.cases import Cases
-from tux.services.moderation.case_service import CaseService
-from tux.services.moderation.communication_service import CommunicationService
-from tux.services.moderation.execution_service import ExecutionService
-from tux.services.moderation.moderation_coordinator import ModerationCoordinator
+from astromorty.core.bot import Astromorty
+from astromorty.core.flags import CaseModifyFlags
+from astromorty.database.models import Case, CaseType
+from astromorty.database.models import CaseType as DBCaseType
+from astromorty.modules.moderation.cases import Cases
+from astromorty.services.moderation.case_service import CaseService
+from astromorty.services.moderation.communication_service import CommunicationService
+from astromorty.services.moderation.execution_service import ExecutionService
+from astromorty.services.moderation.moderation_coordinator import ModerationCoordinator
 
 
 class TestModerationCoordinatorIntegration:
@@ -48,7 +48,7 @@ class TestModerationCoordinatorIntegration:
     @pytest.fixture
     def mock_bot(self):
         """Create a mock Discord bot."""
-        bot = MagicMock(spec=Tux)
+        bot = MagicMock(spec=Astromorty)
         bot.emoji_manager = MagicMock()
         bot.emoji_manager.get = lambda x: f":{x}:"
         return bot
@@ -964,7 +964,7 @@ class TestCaseModificationAuditLogging:
     @pytest.fixture
     def mock_bot_with_db(self):
         """Create a mock bot with database mock."""
-        bot = MagicMock(spec=Tux)
+        bot = MagicMock(spec=Astromorty)
         bot.emoji_manager = MagicMock()
         bot.emoji_manager.get = lambda x: f":{x}:"
         bot.db = MagicMock()

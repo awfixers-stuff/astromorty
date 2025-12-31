@@ -8,9 +8,9 @@ import discord
 import pytest
 from discord.ext import commands
 
-from tux.services.sentry import track_command_end, track_command_start
-from tux.services.sentry.cog import SentryHandler
-from tux.services.sentry.context import _command_start_times
+from astromorty.services.sentry import track_command_end, track_command_start
+from astromorty.services.sentry.cog import SentryHandler
+from astromorty.services.sentry.context import _command_start_times
 
 
 class TestSentryPerformanceTracking:

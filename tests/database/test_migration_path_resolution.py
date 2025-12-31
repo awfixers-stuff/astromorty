@@ -18,8 +18,8 @@ from alembic.config import Config
 from alembic.script import ScriptDirectory
 from alembic.util.exc import CommandError
 
-from tux.core.setup.database_setup import DatabaseSetupService
-from tux.database.service import DatabaseService
+from astromorty.core.setup.database_setup import DatabaseSetupService
+from astromorty.database.service import DatabaseService
 
 
 class TestMigrationPathResolution:

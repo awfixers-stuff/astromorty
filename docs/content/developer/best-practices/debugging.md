@@ -20,11 +20,11 @@ Enable debug mode for enhanced logging and error information:
 
 ```bash
 # Start bot with debug mode
-uv run tux start --debug
+uv run astromorty start --debug
 
 # Or set in environment
 export DEBUG=1
-uv run tux start
+uv run astromorty start
 ```
 
 Debug mode provides:

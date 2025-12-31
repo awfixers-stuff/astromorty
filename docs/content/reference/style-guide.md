@@ -128,7 +128,7 @@ This guide demonstrates the standard typography, formatting, components, and cod
     uv sync
 
     # Run the bot
-    uv run tux start
+    uv run astromorty start
     ```
 
     ### JSON

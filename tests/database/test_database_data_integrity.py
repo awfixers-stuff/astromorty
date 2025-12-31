@@ -7,8 +7,8 @@ Tests for data integrity and validation rules.
 import pytest
 
 from tests.fixtures import TEST_GUILD_ID
-from tux.database.models.models import Guild, GuildConfig
-from tux.database.service import DatabaseService
+from astromorty.database.models.models import Guild, GuildConfig
+from astromorty.database.service import DatabaseService
 
 
 class TestDataIntegrity:

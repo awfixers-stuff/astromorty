@@ -174,7 +174,7 @@ Type=simple
 User=tux
 Group=tux
 WorkingDirectory=/opt/tux
-ExecStart=/home/tux/.local/bin/uv run tux start
+ExecStart=/home/tux/.local/bin/uv run astromorty start
 Restart=always
 RestartSec=10
 

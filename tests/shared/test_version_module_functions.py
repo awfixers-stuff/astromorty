@@ -4,7 +4,7 @@
 Tests for module-level convenience functions in the version system.
 """
 
-from tux.shared.version import (
+from astromorty.shared.version import (
     bump_version,
     compare_versions,
     generate_build_metadata,

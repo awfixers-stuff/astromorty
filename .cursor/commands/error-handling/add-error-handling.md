@@ -7,7 +7,7 @@ Implement comprehensive error handling for Discord bot operations, database tran
 ## Steps
 
 1. **Discord Error Detection**
-   - Identify Discord API errors and rate limits
+   - Identify Discord API errors and rate limits (reference `@discord-api-docs` for error codes and rate limit specifications)
    - Find unhandled command exceptions
    - Detect permission and authorization failures
    - Analyze interaction timeout scenarios
@@ -45,3 +45,4 @@ Implement comprehensive error handling for Discord bot operations, database tran
 - Related rule: @error-handling/logging.mdc
 - Related rule: @error-handling/sentry.mdc
 - Related rule: @error-handling/user-feedback.mdc
+- Discord API Documentation: `@discord-api-docs` - Reference for Discord API error codes, rate limits, and error handling patterns

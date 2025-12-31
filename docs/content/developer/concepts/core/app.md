@@ -125,10 +125,10 @@ Start the bot using the CLI command:
 
 ```bash
 # Standard startup
-uv run tux start
+uv run astromorty start
 
 # With debug logging
-uv run tux start --debug
+uv run astromorty start --debug
 
 # Check configuration first
 uv run config validate
@@ -147,7 +147,7 @@ The application returns exit codes you can use in scripts and systemd services:
 Use exit codes in deployment scripts to detect startup failures:
 
 ```bash
-uv run tux start
+uv run astromorty start
 if [ $? -eq 1 ]; then
     echo "Bot failed to start - check logs"
     exit 1
@@ -185,7 +185,7 @@ If cogs fail to load, check:
 Enable debug logging to see detailed error messages:
 
 ```bash
-LOG_LEVEL=DEBUG uv run tux start
+LOG_LEVEL=DEBUG uv run astromorty start
 ```
 
 ### Shutdown Issues

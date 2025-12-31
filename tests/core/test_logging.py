@@ -19,7 +19,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 from loguru import logger
 
-from tux.core.logging import (
+from astromorty.core.logging import (
     INTERCEPTED_LIBRARIES,
     THIRD_PARTY_LOG_LEVELS,
     VALID_LOG_LEVELS,
@@ -35,7 +35,7 @@ from tux.core.logging import (
 )
 
 # Import _state at module level to avoid repeated imports
-from tux.core.logging import _state as logging_state
+from astromorty.core.logging import _state as logging_state
 
 
 @contextmanager

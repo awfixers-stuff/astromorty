@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-echo "Tux Docker Entrypoint"
+echo "Astromorty Docker Entrypoint"
 echo "====================="
 
 # Configuration
@@ -10,11 +10,17 @@ STARTUP_DELAY=${STARTUP_DELAY:-5}
 
 # Function to check if database is ready (simple socket check)
 wait_for_db() {
+    # Skip database wait if using external database (Supabase, etc.)
+    if [ -n "$DATABASE_URL" ]; then
+        echo "Using external database (DATABASE_URL set), skipping local database wait"
+        return 0
+    fi
+
     local attempts=0
     local max_attempts=30
 
     # Check if POSTGRES_HOST is set, if not use default
-    local db_host="${POSTGRES_HOST:-tux-postgres}"
+    local db_host="${POSTGRES_HOST:-astromorty-postgres}"
     local db_port="${POSTGRES_PORT:-5432}"
 
     echo "Waiting for database at $db_host:$db_port..."
@@ -24,7 +30,7 @@ import socket
 import sys
 import os
 try:
-    db_host = os.environ.get('POSTGRES_HOST', 'tux-postgres')
+    db_host = os.environ.get('POSTGRES_HOST', 'astromorty-postgres')
     db_port = int(os.environ.get('POSTGRES_PORT', 5432))
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     sock.settimeout(1)
@@ -58,7 +64,7 @@ validate_config() {
   fi
 
     # Test configuration loading
-    if ! python -c "import tux.shared.config.settings; print('Configuration loaded successfully')"; then
+    if ! python -c "import astromorty.shared.config.settings; print('Configuration loaded successfully')"; then
         echo "Failed to load configuration"
         return 1
   fi
@@ -94,7 +100,7 @@ start_bot_with_retry() {
         # This ensures signals are delivered directly to the bot process
         echo "Configuration validated. Starting bot..."
         # shellcheck disable=SC2093
-        exec tux start
+        exec astromorty start
   done
 }
 

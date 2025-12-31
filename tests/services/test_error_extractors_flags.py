@@ -6,7 +6,7 @@ Tests for flag-related error extractors.
 
 from unittest.mock import MagicMock
 
-from tux.services.handlers.error.extractors import (
+from astromorty.services.handlers.error.extractors import (
     extract_bad_flag_argument_details,
     extract_missing_flag_details,
 )

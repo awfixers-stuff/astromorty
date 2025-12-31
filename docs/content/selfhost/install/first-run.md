@@ -45,7 +45,7 @@ uv sync
 uv run db push
 
 # Start bot
-uv run tux start
+uv run astromorty start
 ```
 
 ## What to Expect
@@ -375,12 +375,12 @@ For temporary deployments only:
 ```bash
 # Screen
 screen -S tux
-uv run tux start
+uv run astromorty start
 # Ctrl+A, D to detach
 
 # Tmux
 tmux new -s tux
-uv run tux start
+uv run astromorty start
 # Ctrl+B, D to detach
 ```
 

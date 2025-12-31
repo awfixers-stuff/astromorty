@@ -14,7 +14,7 @@ from pydantic_settings_export import PSESettings
 from pydantic_settings_export.generators.toml import TomlGenerator, TomlSettings
 from pydantic_settings_export.models import FieldInfoModel, SettingsInfoModel
 
-from tux.shared.config.generators import (
+from astromorty.shared.config.generators import (
     JsonGenerator,
     JsonGeneratorSettings,
     YamlGenerator,

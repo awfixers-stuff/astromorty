@@ -263,3 +263,4 @@ async def on_member_join(self, member: discord.Member) -> None:
 - @error-handling/patterns.mdc - Error handling patterns
 - @AGENTS.md - General coding standards
 - @rules.mdc - Complete catalog of all rules and commands
+- @discord-api-docs - Official Discord API documentation for gateway events, event types, and specifications

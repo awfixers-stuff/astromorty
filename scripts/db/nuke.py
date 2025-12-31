@@ -24,8 +24,8 @@ from scripts.ui import (
     prompt,
     rich_print,
 )
-from tux.database.service import DatabaseService
-from tux.shared.config import CONFIG
+from astromorty.database.service import DatabaseService
+from astromorty.shared.config import CONFIG
 
 app = create_app()
 

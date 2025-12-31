@@ -174,7 +174,7 @@ Start the bot and verify it works with the new schema:
 docker compose up -d tux
 
 # Or run locally
-uv run tux start --debug
+uv run astromorty start --debug
 ```
 
 ### Test Rollback (Optional)

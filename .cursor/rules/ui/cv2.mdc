@@ -1,6 +1,6 @@
 ---
-description: Discord.py Components V2 rules, LayoutView patterns, component types, limits, and interaction handling for Tux
-globs: src/tux/ui/**/*.py
+description: Discord.py Components V2 rules, LayoutView patterns, component types, limits, and interaction handling for Astromorty
+globs: src/astromorty/ui/**/*.py
 alwaysApply: false
 ---
 # Discord.py Components V2 Rules
@@ -620,6 +620,7 @@ class Settings(ui.LayoutView):
 - Use Secondary for equal-significance buttons
 - Max 34 chars with icon, 38 without for buttons
 - Remember: 40 components, 4000 chars total, 1-10 gallery items
+- Reference `@discord-api-docs` for official component specifications, limits, and behavior
 
 ## Persistent Views
 
@@ -636,3 +637,83 @@ Pre-V2 messages:
 - Components have `id` of 0
 - Still supported, not deprecated
 - Both systems can coexist in same bot
+
+## Migration Patterns
+
+### Embed to Container Conversion
+
+Use `embed_to_container()` from `astromorty.ui.converters`:
+
+```python
+from astromorty.ui import embed_to_container
+
+# Before
+embed = discord.Embed(title="Title", description="Description")
+await ctx.send(embed=embed, view=view)
+
+# After
+container = embed_to_container(embed)
+view = discord.ui.LayoutView()
+view.add_item(container)
+# Add ActionRows with buttons
+await ctx.send(view=view)  # No embed parameter
+```
+
+### TextDisplay Formatting
+
+Use formatters from `astromorty.ui.formatters`:
+
+```python
+from astromorty.ui import format_embed_as_textdisplay, truncate_textdisplay
+
+# Format embed as markdown
+content = format_embed_as_textdisplay(embed)
+
+# Truncate if needed
+content = truncate_textdisplay(content, max_length=4000)
+text_display = discord.ui.TextDisplay(content)
+```
+
+### ActionRow Helpers
+
+Use `create_action_row_from_buttons()` from `astromorty.ui.migration_helpers`:
+
+```python
+from astromorty.ui import create_action_row_from_buttons
+
+buttons = [btn1, btn2, btn3]
+action_row = create_action_row_from_buttons(buttons)
+view.add_item(action_row)
+```
+
+### Validation Helpers
+
+Validate component and character limits:
+
+```python
+from astromorty.ui import validate_component_count, validate_textdisplay_length
+
+view = discord.ui.LayoutView()
+# ... add components ...
+
+if not validate_component_count(view):
+    logger.warning("Exceeds component limit")
+
+if not validate_textdisplay_length(view):
+    logger.warning("Exceeds character limit")
+```
+
+### Migration Checklist
+
+When migrating from View to LayoutView:
+
+1. ✅ Change base class from `discord.ui.View` to `discord.ui.LayoutView`
+2. ✅ Convert embeds to Containers using `embed_to_container()`
+3. ✅ Wrap buttons/selects in ActionRows
+4. ✅ Use TextDisplay for all text content
+5. ✅ Validate component count (max 40)
+6. ✅ Validate TextDisplay length (max 4000 chars)
+7. ✅ Remove `embed=` parameter from `send()` calls
+8. ✅ Update message editing to only use `view=` parameter
+9. ✅ Test all interactions and navigation
+10. ✅ Test timeout handling

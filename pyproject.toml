@@ -2,20 +2,23 @@
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
+[tool.hatch.metadata]
+allow-direct-references = true
+
 [project]
-name = "tux"
+name = "astromorty"
 version = "0.1.0"
 requires-python = ">=3.13.2,<3.14"
-description = "Tux is an all in one bot for the All Things Linux discord server."
+description = "Astromorty is an all in one bot for the All Things Linux discord server."
 readme = "README.md"
 license = "GPL-3.0-or-later"
-authors = [{ name = "All Things Linux", email = "tux@allthingslinux.org" }]
+authors = [{ name = "All Things Linux", email = "astromorty@allthingslinux.org" }]
 
 dependencies = [
     "aiocache>=0.12.3",
     "aiofiles>=24.1.0",
     "cairosvg>=2.7.1",
-    "discord-py>=2.6.0",
+    "discord.py @ file:///home/awfixer/personal/astromorty/external/discord.py",
     "influxdb-client>=1.48.0",
     "githubkit[auth-app]>=0.12.0",
     "httpx>=0.28.0",
@@ -49,14 +52,25 @@ dependencies = [
     "semver>=3.0.4",
     "tomli-w>=1.0.0",
     "tomlkit>=0.13.3",
+    "fastapi>=0.104.0",
+    "uvicorn[standard]>=0.24.0",
+    "python-multipart>=0.0.6",
+    "cryptography>=41.0.0",
+    "python-jose[cryptography]>=3.3.0",
+    "upstash-redis>=1.5.0",
+    "supabase>=2.27.0",
+    "supabase-functions>=2.27.0",
+    "supabase-auth>=2.27.0",
+    "realtime>=2.27.0",
+    "postgrest>=2.27.0",
 ]
 
 [project.urls]
-repository = "https://github.com/allthingslinux/tux"
+repository = "https://github.com/allthingslinux/astromorty"
 
 [project.scripts]
 cli = "scripts:main"
-tux = "scripts.tux:main"
+astromorty = "scripts.astromorty:main"
 db = "scripts.db:main"
 dev = "scripts.dev:main"
 test = "scripts.test:main"
@@ -146,10 +160,10 @@ types = [
 default-groups = ["dev", "test", "docs", "types"]
 
 [tool.hatch.build.targets.sdist]
-packages = ["src/tux", "scripts"]
+packages = ["src/astromorty", "scripts"]
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/tux", "scripts"]
+packages = ["src/astromorty", "scripts"]
 
 [tool.pydoclint]
 style = "numpy"
@@ -207,7 +221,7 @@ exclude = [
     "examples",
     "node_modules",
     "site-packages",
-    "src/tux/database/migrations/versions/**",
+    "src/astromorty/database/migrations/versions/**",
     # Exclude all Python files in tests, but allow conftest.py to be linted
     "tests/fixtures/**",
     "tests/e2e/**",
@@ -291,7 +305,7 @@ exclude = [
     "examples",
     "site",
     ".archive",
-    "src/tux/database/migrations/**",
+    "src/astromorty/database/migrations/**",
 ]
 include = ["src", "scripts", "tests"]
 stubPath = "typings"
@@ -327,7 +341,7 @@ reportUnknownArgumentType = "none"
 reportUnknownParameterType = "none"
 
 [tool.coverage.run]
-source = ["src/tux"]
+source = ["src/astromorty"]
 branch = true
 parallel = true
 relative_files = true
@@ -404,7 +418,7 @@ addopts = [
     # Import mode (recommended for new projects)
     "--import-mode=importlib",
     # Coverage
-    "--cov=src/tux",
+    "--cov=src/astromorty",
     "--cov-report=term-missing",
     "--cov-report=xml",
     "--cov-report=json",
@@ -508,22 +522,22 @@ junit_logging = "no"
 
 # pytest-alembic configuration
 [tool.pytest-alembic]
-script_location = "src/tux/database/migrations"
-version_locations = ["src/tux/database/migrations/versions"]
+script_location = "src/astromorty/database/migrations"
+version_locations = ["src/astromorty/database/migrations/versions"]
 
 # Note: pytest-xdist options are configured via command-line arguments
 # (e.g., -n auto, --dist=loadfile) or in addopts, not as a separate config section
 
 # Legacy MkDocs plugin entry points (kept for reference, may not be used with Zensical)
 [project.entry-points."mkdocs.plugins"]
-tux = "docs.plugins.mkdocs_tux_plugin:TuxPlugin"
+astromorty = "docs.plugins.mkdocs_astromorty_plugin:AstromortyPlugin"
 mkdocs_sbom = "docs.plugins.mkdocs_sbom:SbomPlugin"
 mkdocs_auto_index = "docs.plugins.mkdocs_auto_index:IndexGeneratorPlugin"
 
 # pydantic-settings-export configuration
 [tool.pydantic_settings_export]
 project_dir = "."
-default_settings = ["tux.shared.config.settings:Config"]
+default_settings = ["astromorty.shared.config.settings:Config"]
 
 [[tool.pydantic_settings_export.generators.dotenv]]
 paths = [".env.example"]
@@ -544,12 +558,12 @@ enabled = true
 
 # Custom generators for YAML and JSON (stored in config/ directory)
 
-[[tool.pydantic_settings_export.generators."tux.shared.config.generators:YamlGenerator"]]
+[[tool.pydantic_settings_export.generators."astromorty.shared.config.generators:YamlGenerator"]]
 paths = ["config/config.yaml.example"]
 include_comments = true
 enabled = true
 
-[[tool.pydantic_settings_export.generators."tux.shared.config.generators:JsonGenerator"]]
+[[tool.pydantic_settings_export.generators."astromorty.shared.config.generators:JsonGenerator"]]
 paths = ["config/config.json.example"]
 indent = 2
 enabled = true

@@ -5,7 +5,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 import sqlalchemy.exc
 
-from tux.database.service import DatabaseService
+from astromorty.database.service import DatabaseService
 
 
 class TestDatabaseErrorHandling:

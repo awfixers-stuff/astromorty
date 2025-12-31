@@ -3,30 +3,30 @@
 
 <div align="center">
     <p align="center">
-        <a href="https://github.com/allthingslinux/tux/releases">
-            <img alt="GitHub Release" src="https://img.shields.io/github/v/release/allthingslinux/tux?logo=github&logoColor=white&include_prereleases"></a>
+        <a href="https://github.com/allthingslinux/astromorty/releases">
+            <img alt="GitHub Release" src="https://img.shields.io/github/v/release/allthingslinux/astromorty?logo=github&logoColor=white&include_prereleases"></a>
         <a href="https://python.org">
             <img alt="Python" src="https://img.shields.io/badge/python-3.13.2+-blue?logo=python&logoColor=white"></a>
         <a href="https://docs.astral.sh/uv">
             <img alt="uv" src="https://img.shields.io/badge/uv-0.9.0+-purple?logo=uv&logoColor=white"></a>
-        <a href="https://results.pre-commit.ci/latest/github/allthingslinux/tux/main">
-            <img alt="pre-commit.ci status" src="https://results.pre-commit.ci/badge/github/allthingslinux/tux/main.svg"></a>
-        <a href="https://codecov.io/gh/allthingslinux/tux">
-            <img alt="Codecov" src="https://codecov.io/gh/allthingslinux/tux/graph/badge.svg?token=R0AUAS996W"></a>
-        <a href="https://github.com/allthingslinux/tux/blob/main/LICENSE">
-            <img alt="License" src="https://img.shields.io/github/license/allthingslinux/tux?logo=gnu&logoColor=white"></a>
+        <a href="https://results.pre-commit.ci/latest/github/allthingslinux/astromorty/main">
+            <img alt="pre-commit.ci status" src="https://results.pre-commit.ci/badge/github/allthingslinux/astromorty/main.svg"></a>
+        <a href="https://codecov.io/gh/allthingslinux/astromorty">
+            <img alt="Codecov" src="https://codecov.io/gh/allthingslinux/astromorty/graph/badge.svg?token=R0AUAS996W"></a>
+        <a href="https://github.com/allthingslinux/astromorty/blob/main/LICENSE">
+            <img alt="License" src="https://img.shields.io/github/license/allthingslinux/astromorty?logo=gnu&logoColor=white"></a>
     </p>
 </div>
 
 <img align="center" src="assets/readme-banner.png" alt="Banner">
 
 <div align="center">
-    <h1>Tux</h1>
+    <h1>Astromorty</h1>
     <p><strong>The all-in-one open source Discord bot</strong></p>
     <p>
-        <a href="https://tux.atl.dev">📚 Documentation</a> •
+        <a href="https://astromorty.atl.dev">📚 Documentation</a> •
         <a href="https://discord.gg/gpmSjcjQxg">💬 Discord</a> •
-        <a href="https://github.com/allthingslinux/tux/issues/525">🗺️ Roadmap</a>
+        <a href="https://github.com/allthingslinux/astromorty/issues/525">🗺️ Roadmap</a>
     </p>
 </div>
 
@@ -37,14 +37,14 @@
 
 ## Quick Start
 
-Choose your path to get started with Tux:
+Choose your path to get started with Astromorty:
 
 | Role          | Get Started                                                                                   |
 |---------------|----------------------------------------------------------------------------------------------|
-| 👤 Users      | [Get Started](https://tux.atl.dev/user/)                                 |
-| ⚙️ Admins     | [Get Started](https://tux.atl.dev/admin/)                                |
-| 🐳 Self-Hosters | [Get Started](https://tux.atl.dev/selfhost/)                        |
-| 💻 Developers | [Get Started](https://tux.atl.dev/developer/)                            |
+| 👤 Users      | [Get Started](https://astromorty.atl.dev/user/)                                 |
+| ⚙️ Admins     | [Get Started](https://astromorty.atl.dev/admin/)                                |
+| 🐳 Self-Hosters | [Get Started](https://astromorty.atl.dev/selfhost/)                        |
+| 💻 Developers | [Get Started](https://astromorty.atl.dev/developer/)                            |
 
 ## About
 
@@ -97,7 +97,7 @@ Visit **[tux.atl.dev](https://tux.atl.dev)** for complete documentation includin
 ## Support & Community
 
 - **[Discord Server](https://discord.gg/gpmSjcjQxg)** - Get help, report issues, and discuss features
-- **[GitHub Issues](https://github.com/allthingslinux/tux/issues)** - Bug reports and feature requests
+- **[GitHub Issues](https://github.com/allthingslinux/astromorty/issues)** - Bug reports and feature requests
 
 **Developer Resources:**
 

@@ -15,7 +15,7 @@ from pydantic_settings import (
     SettingsConfigDict,
 )
 
-from tux.shared.config.loaders import (
+from astromorty.shared.config.loaders import (
     JsonConfigSource,
     TomlConfigSource,
     YamlConfigSource,

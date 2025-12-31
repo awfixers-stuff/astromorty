@@ -3,7 +3,7 @@
 import pytest
 from typing import Any
 
-from tux.database.controllers import GuildConfigController, GuildController
+from astromorty.database.controllers import GuildConfigController, GuildController
 
 # Test constants
 TEST_GUILD_ID = 123456789012345678

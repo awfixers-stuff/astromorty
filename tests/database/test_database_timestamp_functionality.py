@@ -9,13 +9,13 @@ from typing import get_type_hints
 import pytest
 
 from tests.fixtures import TEST_GUILD_ID
-from tux.core.permission_system import DEFAULT_RANKS
-from tux.core.permission_system import DEFAULT_RANKS as CORE_DEFAULTS
-from tux.database.models.base import BaseModel, TimestampMixin
-from tux.database.models.models import Guild, PermissionRank
-from tux.database.service import DatabaseService
-from tux.modules.config.ranks import DEFAULT_RANKS as CMD_DEFAULTS
-from tux.ui.views.config.ranks import DEFAULT_RANKS as UI_DEFAULTS
+from astromorty.core.permission_system import DEFAULT_RANKS
+from astromorty.core.permission_system import DEFAULT_RANKS as CORE_DEFAULTS
+from astromorty.database.models.base import BaseModel, TimestampMixin
+from astromorty.database.models.models import Guild, PermissionRank
+from astromorty.database.service import DatabaseService
+from astromorty.modules.config.ranks import DEFAULT_RANKS as CMD_DEFAULTS
+from astromorty.ui.views.config.ranks import DEFAULT_RANKS as UI_DEFAULTS
 
 
 class TestTimestampFunctionality:

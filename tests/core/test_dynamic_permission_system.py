@@ -7,7 +7,7 @@ Test Coverage:
 - Permission rank retrieval based on roles
 - Dynamic decorator functionality (@requires_command_permission)
 - Permission caching behavior
-- Error handling (TuxPermissionDeniedError)
+- Error handling (AstromortyPermissionDeniedError)
 - Support for prefix, app, and hybrid commands
 """
 
@@ -18,20 +18,20 @@ import discord
 import pytest
 from discord.ext import commands
 
-from tux.core.bot import Tux
-from tux.core.checks import requires_command_permission
-from tux.core.permission_system import PermissionSystem
-from tux.database.controllers import DatabaseCoordinator
-from tux.shared.exceptions import TuxPermissionDeniedError
+from astromorty.core.bot import Astromorty
+from astromorty.core.checks import requires_command_permission
+from astromorty.core.permission_system import PermissionSystem
+from astromorty.database.controllers import DatabaseCoordinator
+from astromorty.shared.exceptions import AstromortyPermissionDeniedError
 
 
 class TestPermissionSystem:
     """🛡️ Test PermissionSystem core functionality."""
 
     @pytest.fixture
-    def mock_bot(self) -> Tux:
+    def mock_bot(self) -> Astromorty:
         """Create a mock bot instance."""
-        return MagicMock(spec=Tux)
+        return MagicMock(spec=Astromorty)
 
     @pytest.fixture
     def mock_db_coordinator(self) -> MagicMock:
@@ -43,14 +43,14 @@ class TestPermissionSystem:
     @pytest.fixture
     def permission_system(
         self,
-        mock_bot: Tux,
+        mock_bot: Astromorty,
         mock_db_coordinator: MagicMock,
     ) -> PermissionSystem:
         """Create a PermissionSystem instance for testing."""
         return PermissionSystem(mock_bot, mock_db_coordinator)
 
     @pytest.fixture
-    def mock_ctx(self) -> commands.Context[Tux]:
+    def mock_ctx(self) -> commands.Context[Astromorty]:
         """Create a mock command context."""
         ctx = MagicMock(spec=commands.Context)
         ctx.guild = MagicMock(spec=discord.Guild)
@@ -58,7 +58,7 @@ class TestPermissionSystem:
         ctx.author = MagicMock(spec=discord.Member)
         ctx.author.id = 987654321
         ctx.author.roles = []
-        ctx.bot = MagicMock(spec=Tux)
+        ctx.bot = MagicMock(spec=Astromorty)
         return ctx
 
     @pytest.mark.unit
@@ -76,7 +76,7 @@ class TestPermissionSystem:
     async def test_get_user_permission_rank_no_roles(
         self,
         permission_system: PermissionSystem,
-        mock_ctx: commands.Context[Tux],
+        mock_ctx: commands.Context[Astromorty],
     ) -> None:
         """Test permission rank for user with no roles."""
         # Mock database to return 0 for no roles
@@ -95,7 +95,7 @@ class TestPermissionSystem:
     async def test_get_user_permission_rank_with_roles(
         self,
         permission_system: PermissionSystem,
-        mock_ctx: commands.Context[Tux],
+        mock_ctx: commands.Context[Astromorty],
     ) -> None:
         """Test permission rank for user with assigned roles."""
         # Give user some roles
@@ -127,7 +127,7 @@ class TestPermissionSystem:
     async def test_get_user_permission_rank_no_guild(
         self,
         permission_system: PermissionSystem,
-        mock_ctx: commands.Context[Tux],
+        mock_ctx: commands.Context[Astromorty],
     ) -> None:
         """Test permission rank when context has no guild (DMs)."""
         mock_ctx.guild = None
@@ -192,7 +192,7 @@ class TestPermissionDecorator:
         """Test that decorator preserves function name and docstring."""
 
         @requires_command_permission()
-        async def my_special_command(ctx: commands.Context[Tux]) -> None:
+        async def my_special_command(ctx: commands.Context[Astromorty]) -> None:
             """This is my special command."""  # noqa: D401, D404
 
         # Should preserve function metadata
@@ -206,7 +206,7 @@ class TestPermissionDecorator:
         """Test that the decorator can be applied to functions."""
 
         @requires_command_permission()
-        async def test_command(ctx: commands.Context[Tux]) -> str:
+        async def test_command(ctx: commands.Context[Astromorty]) -> str:
             return "test"
 
         # Should be callable
@@ -216,12 +216,12 @@ class TestPermissionDecorator:
 
 
 class TestPermissionError:
-    """❌ Test TuxPermissionDeniedError exception."""
+    """❌ Test AstromortyPermissionDeniedError exception."""
 
     @pytest.mark.unit
     def test_permission_error_with_command_name(self) -> None:
         """Test error message includes command name."""
-        error = TuxPermissionDeniedError(
+        error = AstromortyPermissionDeniedError(
             required_rank=5,
             user_rank=2,
             command_name="ban",
@@ -235,7 +235,7 @@ class TestPermissionError:
     @pytest.mark.unit
     def test_permission_error_without_command_name(self) -> None:
         """Test error message without command name."""
-        error = TuxPermissionDeniedError(
+        error = AstromortyPermissionDeniedError(
             required_rank=3,
             user_rank=1,
             command_name=None,
@@ -248,7 +248,7 @@ class TestPermissionError:
     @pytest.mark.unit
     def test_permission_error_attributes(self) -> None:
         """Test error has correct attributes."""
-        error = TuxPermissionDeniedError(
+        error = AstromortyPermissionDeniedError(
             required_rank=4,
             user_rank=2,
             command_name="kick",

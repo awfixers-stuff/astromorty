@@ -6,7 +6,7 @@ Tests for role-related error extractors.
 
 from unittest.mock import MagicMock
 
-from tux.services.handlers.error.extractors import (
+from astromorty.services.handlers.error.extractors import (
     extract_missing_any_role_details,
     extract_missing_role_details,
 )

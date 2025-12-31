@@ -399,3 +399,4 @@ async def on_command_error(
 - @ui/cv2.mdc - Components V2 patterns
 - @AGENTS.md - General coding standards
 - @rules.mdc - Complete catalog of all rules and commands
+- @discord-api-docs - Official Discord API documentation for endpoints, interactions, and specifications

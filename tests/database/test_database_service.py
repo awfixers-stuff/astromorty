@@ -22,9 +22,9 @@ import pytest
 from sqlalchemy import text
 from sqlmodel import select
 
-from tux.database.controllers import GuildConfigController, GuildController
-from tux.database.models.models import Guild, GuildConfig
-from tux.database.service import DatabaseService
+from astromorty.database.controllers import GuildConfigController, GuildController
+from astromorty.database.models.models import Guild, GuildConfig
+from astromorty.database.service import DatabaseService
 
 # =============================================================================
 # UNIT TESTS - Fast Sync SQLModel + py-pglite

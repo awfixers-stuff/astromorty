@@ -16,43 +16,45 @@
 # For production deployments, use: docker compose -f compose.production.yaml up -d
 #
 services:
-  tux-postgres:
-    container_name: tux-postgres
-    hostname: tux-postgres
-    image: postgres:17-alpine@sha256:ff4ccc02b97e0ebb6b328ef9ff92522f95586f83be6801896b615088defc8ad2
-    restart: 'no'
-    environment:
-      POSTGRES_DB: ${POSTGRES_DB:-tuxdb}
-      POSTGRES_USER: ${POSTGRES_USER:-tuxuser}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-ChangeThisToAStrongPassword123!}
-      POSTGRES_INITDB_ARGS: --encoding=UTF-8 --lc-collate=C --lc-ctype=C
-    ports: ['127.0.0.1:${POSTGRES_PORT:-5432}:5432']
-    volumes:
-      - tux_postgres_data:/var/lib/postgresql/data
-      - ./docker/postgres/postgresql.conf:/etc/postgresql/postgresql.conf:ro
-    command: postgres -c config_file=/etc/postgresql/postgresql.conf
-
-    # Logging configuration
-    logging:
-      driver: json-file
-      options:
-        max-size: 10m
-        max-file: '3'
-        compress: 'true'
-    healthcheck:
-      test:
-        - CMD-SHELL
-        - pg_isready -U ${POSTGRES_USER:-tuxuser} -d ${POSTGRES_DB:-tuxdb} -h localhost
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 30s
-    stop_grace_period: 30s
-  tux:
-    container_name: tux
-    hostname: tux
+  # PostgreSQL service (optional - use Supabase or external PostgreSQL instead)
+  # Uncomment and configure if you want to use local PostgreSQL instead of Supabase
+  # astromorty-postgres:
+  #   container_name: astromorty-postgres
+  #   hostname: astromorty-postgres
+  #   image: postgres:17-alpine@sha256:ff4ccc02b97e0ebb6b328ef9ff92522f95586f83be6801896b615088defc8ad2
+  #   restart: 'no'
+  #   environment:
+  #     POSTGRES_DB: ${POSTGRES_DB:-astromortydb}
+  #     POSTGRES_USER: ${POSTGRES_USER:-astromortyuser}
+  #     POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-ChangeThisToAStrongPassword123!}
+  #     POSTGRES_INITDB_ARGS: --encoding=UTF-8 --lc-collate=C --lc-ctype=C
+  #   ports: ['127.0.0.1:${POSTGRES_PORT:-5432}:5432']
+  #   volumes:
+  #     - tux_postgres_data:/var/lib/postgresql/data
+  #     - ./docker/postgres/postgresql.conf:/etc/postgresql/postgresql.conf:ro
+  #   command: postgres -c config_file=/etc/postgresql/postgresql.conf
+  #
+  #   # Logging configuration
+  #   logging:
+  #     driver: json-file
+  #     options:
+  #       max-size: 10m
+  #       max-file: '3'
+  #       compress: 'true'
+  #   healthcheck:
+  #     test:
+      #       - CMD-SHELL
+      #       - pg_isready -U ${POSTGRES_USER:-astromortyuser} -d ${POSTGRES_DB:-astromortydb} -h localhost
+  #     interval: 10s
+  #     timeout: 5s
+  #     retries: 5
+  #     start_period: 30s
+  #   stop_grace_period: 30s
+  astromorty:
+    container_name: astromorty
+    hostname: astromorty
     # Development: Build from source by default, or use pre-built image
-    image: ${TUX_IMAGE:-ghcr.io/allthingslinux/tux}:${TUX_IMAGE_TAG:-latest}
+    image: ${ASTROMORTY_IMAGE:-ghcr.io/allthingslinux/astromorty}:${ASTROMORTY_IMAGE_TAG:-latest}
     build:
       context: .
       dockerfile: Containerfile
@@ -74,22 +76,26 @@ services:
       # Note: Source code changes are synced via docker compose watch (see develop section)
     env_file: [.env]
     environment:
-      TUX_VERSION: ${VERSION:-dev}
+      ASTROMORTY_VERSION: ${VERSION:-dev}
       # Development settings
       DEBUG: ${DEBUG:-false}
       # Startup configuration
       MAX_STARTUP_ATTEMPTS: ${MAX_STARTUP_ATTEMPTS:-3}
       STARTUP_DELAY: ${STARTUP_DELAY:-5}
-      # Database connection (Docker Compose service names)
-      POSTGRES_HOST: tux-postgres
-      POSTGRES_PORT: 5432
-      POSTGRES_DB: ${POSTGRES_DB:-tuxdb}
-      POSTGRES_USER: ${POSTGRES_USER:-tuxuser}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-ChangeThisToAStrongPassword123!}
+      # Database connection
+      # For Supabase: Set DATABASE_URL instead of individual POSTGRES_* vars
+      # DATABASE_URL: postgresql+psycopg://user:password@host:port/database?sslmode=require
+      # For local PostgreSQL: Uncomment and configure below
+      # POSTGRES_HOST: astromorty-postgres
+      # POSTGRES_PORT: 5432
+      # POSTGRES_DB: ${POSTGRES_DB:-astromortydb}
+      # POSTGRES_USER: ${POSTGRES_USER:-astromortyuser}
+      # POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-ChangeThisToAStrongPassword123!}
     restart: no  # Development: manual restart control
-    depends_on:
-      tux-postgres:
-        condition: service_healthy
+    # depends_on:
+    #   tux-postgres:
+    #     condition: service_healthy
+    # Uncomment above if using local PostgreSQL service
     healthcheck:
       # Verify the bot process is running
       test:
@@ -148,24 +154,25 @@ services:
         - action: sync+restart
           path: compose.yaml
           target: /app/compose.yaml
-  tux-adminer:
-    # Database management UI - enabled by default in development
-    image: adminer:latest@sha256:ae1d4d7774c544d084e42887a318e6b0f47ad8c60fe1661d9278ef169c8b4eaa
-    container_name: tux-adminer
-    hostname: tux-adminer
-    profiles: [dev]  # Enable with: docker compose --profile dev up -d
-    restart: 'no'
-    depends_on:
-      tux-postgres:
-        condition: service_healthy
-    ports: ['${ADMINER_PORT:-8080}:8080']
+  # tux-adminer:
+  #   # Database management UI - enabled by default in development
+  #   # Note: Adminer only works with local PostgreSQL. For Supabase, use Supabase Studio.
+  #   image: adminer:latest@sha256:ae1d4d7774c544d084e42887a318e6b0f47ad8c60fe1661d9278ef169c8b4eaa
+  #   container_name: tux-adminer
+  #   hostname: tux-adminer
+  #   profiles: [dev]  # Enable with: docker compose --profile dev up -d
+  #   restart: 'no'
+  #   depends_on:
+  #     astromorty-postgres:
+  #       condition: service_healthy
+  #   ports: ['${ADMINER_PORT:-8080}:8080']
     environment:
       # Plugin configuration for autologin
       ADMINER_DEFAULT_SYSTEM: pgsql
-      ADMINER_DEFAULT_SERVER: tux-postgres
-      ADMINER_DEFAULT_NAME: ${POSTGRES_USER:-tuxuser}
+      ADMINER_DEFAULT_SERVER: astromorty-postgres
+      ADMINER_DEFAULT_NAME: ${POSTGRES_USER:-astromortyuser}
       ADMINER_DEFAULT_PASS: ${POSTGRES_PASSWORD:-ChangeThisToAStrongPassword123!}
-      ADMINER_DEFAULT_DATABASE: ${POSTGRES_DB:-tuxdb}
+      ADMINER_DEFAULT_DATABASE: ${POSTGRES_DB:-astromortydb}
       ADMINER_AUTOLOGIN_AUTOSUBMIT: ${ADMINER_AUTO_LOGIN:-true}
       # Additional plugins
       ADMINER_PLUGINS: backward-keys tables-filter dump-date dump-json dump-xml dump-zip
@@ -176,6 +183,7 @@ services:
       # Mount autologin plugin to plugins-enabled directory
       # Adminer automatically loads plugins from this directory
       - ./docker/adminer/autologin-form.php:/var/www/html/plugins-enabled/autologin-form.php:ro
-volumes:
-  tux_postgres_data:
-    driver: local
+# volumes:
+#   tux_postgres_data:
+#     driver: local
+# Uncomment above if using local PostgreSQL service

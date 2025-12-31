@@ -6,7 +6,7 @@ Tests for argument-related error extractors.
 
 from unittest.mock import MagicMock
 
-from tux.services.handlers.error.extractors import (
+from astromorty.services.handlers.error.extractors import (
     extract_bad_union_argument_details,
     extract_missing_argument_details,
 )

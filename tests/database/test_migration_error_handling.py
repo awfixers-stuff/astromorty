@@ -11,9 +11,9 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from tux.core.setup.database_setup import DatabaseSetupService
-from tux.database.service import DatabaseService
-from tux.shared.exceptions import TuxDatabaseConnectionError, TuxDatabaseMigrationError
+from astromorty.core.setup.database_setup import DatabaseSetupService
+from astromorty.database.service import DatabaseService
+from astromorty.shared.exceptions import AstromortyDatabaseConnectionError, AstromortyDatabaseMigrationError
 
 
 class TestMigrationErrorHandling:
@@ -21,7 +21,7 @@ class TestMigrationErrorHandling:
 
     @pytest.mark.asyncio
     async def test_migration_timeout_raises_error(self):
-        """Test that migration timeout raises TuxDatabaseMigrationError."""
+        """Test that migration timeout raises AstromortyDatabaseMigrationError."""
         db_service = DatabaseService()
         setup_service = DatabaseSetupService(db_service)
 
@@ -39,7 +39,7 @@ class TestMigrationErrorHandling:
                 "tux.core.setup.database_setup.command.current",
                 side_effect=slow_operation,
             ):
-                with pytest.raises(TuxDatabaseMigrationError) as exc_info:
+                with pytest.raises(AstromortyDatabaseMigrationError) as exc_info:
                     await setup_service._upgrade_head_if_needed()
 
                 error_msg = str(exc_info.value).lower()
@@ -48,7 +48,7 @@ class TestMigrationErrorHandling:
 
     @pytest.mark.asyncio
     async def test_migration_failure_raises_error(self):
-        """Test that migration failures raise TuxDatabaseMigrationError."""
+        """Test that migration failures raise AstromortyDatabaseMigrationError."""
         db_service = DatabaseService()
         setup_service = DatabaseSetupService(db_service)
 
@@ -62,7 +62,7 @@ class TestMigrationErrorHandling:
                 "tux.core.setup.database_setup.command.current",
                 side_effect=Exception("Migration failed"),
             ):
-                with pytest.raises(TuxDatabaseMigrationError) as exc_info:
+                with pytest.raises(AstromortyDatabaseMigrationError) as exc_info:
                     await setup_service._upgrade_head_if_needed()
 
                 assert "failed" in str(exc_info.value).lower()
@@ -77,7 +77,7 @@ class TestMigrationErrorHandling:
         # Mock db_service to simulate connection failure
         with (
             patch.object(db_service, "is_connected", return_value=False),
-            pytest.raises(TuxDatabaseConnectionError),
+            pytest.raises(AstromortyDatabaseConnectionError),
         ):
             await setup_service.setup()
 
@@ -97,7 +97,7 @@ class TestMigrationErrorHandling:
                 "tux.core.setup.database_setup.command.current",
                 side_effect=Exception("Migration failed"),
             ):
-                with pytest.raises(TuxDatabaseMigrationError) as exc_info:
+                with pytest.raises(AstromortyDatabaseMigrationError) as exc_info:
                     await setup_service._upgrade_head_if_needed()
 
                 error_msg = str(exc_info.value)

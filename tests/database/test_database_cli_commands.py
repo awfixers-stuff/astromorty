@@ -25,8 +25,8 @@ import psycopg
 import pytest
 from sqlalchemy import text
 
-from tux.database.service import DatabaseService
-from tux.shared.config import CONFIG
+from astromorty.database.service import DatabaseService
+from astromorty.shared.config import CONFIG
 
 
 def is_database_running() -> bool:

@@ -445,7 +445,7 @@ CLI Tools (Click-based)
 
 * **Click CLI**: Command-line interface built with Click (April 6, 2025)
 * **Semantic Versioning**: Dynamic version management utilities with build metadata generation
-* **Bot Commands**: `tux start`, `tux version`
+* **Bot Commands**: `astromorty start`, `astromorty version`
 * **Development Commands**: `dev lint`, `dev format`, `dev type-check`, `dev lint-docstring`, `dev docstring-coverage`, `dev pre-commit`, `dev all`
 * **Database Commands**: `db init`, `db dev`, `db push`, `db status`, `db new`, `db health`, `db schema`, `db queries`
 * **Testing Commands**: `tests all`, `tests quick`, `tests plain`, `tests parallel`, `tests html`, `tests coverage`, `tests benchmark`

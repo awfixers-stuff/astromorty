@@ -6,8 +6,8 @@ from unittest.mock import MagicMock
 import httpx
 import pytest
 
-from tux.modules.utility.wiki import Wiki
-from tux.services.http_client import http_client
+from astromorty.modules.utility.wiki import Wiki
+from astromorty.services.http_client import http_client
 
 
 class TestAvatarModuleHTTP:

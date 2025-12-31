@@ -83,7 +83,7 @@ The database should automatically migrate with all required tables on first bot 
 The bot hot-reloads on code changes, so no need to restart it manually. For some things like config changes and state-based components, you may need to restart the bot.
 
 ```bash
-uv run tux start --debug
+uv run astromorty start --debug
 ```
 
 Once you are done, run `$dev ct` (replace `$` with your prefix if you changed it) to register slash commands. You will need to run this whenever you add or change slash commands, more specifically slash command signatures.

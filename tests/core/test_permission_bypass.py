@@ -5,9 +5,9 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import pytest
 from discord.ext import commands
 
-from tux.core.decorators import requires_command_permission
-from tux.shared.config import CONFIG
-from tux.shared.exceptions import TuxPermissionDeniedError
+from astromorty.core.decorators import requires_command_permission
+from astromorty.shared.config import CONFIG
+from astromorty.shared.exceptions import AstromortyPermissionDeniedError
 
 
 class TestPermissionBypass:
@@ -81,7 +81,7 @@ class TestPermissionBypass:
                 mock_get_perm.return_value = mock_perm_system
 
                 # Should raise permission denied for unconfigured command
-                with pytest.raises(TuxPermissionDeniedError):
+                with pytest.raises(AstromortyPermissionDeniedError):
                     await test_command(mock_ctx)
 
     @pytest.mark.asyncio

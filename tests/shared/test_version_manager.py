@@ -11,7 +11,7 @@ from unittest.mock import Mock, patch
 
 import pytest
 
-from tux.shared.version import VersionManager
+from astromorty.shared.version import VersionManager
 
 
 class TestVersionManager:

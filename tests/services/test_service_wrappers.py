@@ -3,17 +3,17 @@
 import httpx
 import pytest
 
-from tux.modules.utility.run import (
+from astromorty.modules.utility.run import (
     GODBOLT_COMPILERS,
     WANDBOX_COMPILERS,
     GodboltService,
     WandboxService,
 )
-from tux.services.wrappers import godbolt, wandbox
-from tux.shared.exceptions import (
-    TuxAPIConnectionError,
-    TuxAPIRequestError,
-    TuxAPIResourceNotFoundError,
+from astromorty.services.wrappers import godbolt, wandbox
+from astromorty.shared.exceptions import (
+    AstromortyAPIConnectionError,
+    AstromortyAPIRequestError,
+    AstromortyAPIResourceNotFoundError,
 )
 
 
@@ -54,7 +54,7 @@ class TestGodboltService:
         """Test HTTP error handling in getoutput."""
         httpx_mock.add_response(status_code=404)
 
-        with pytest.raises(TuxAPIResourceNotFoundError):
+        with pytest.raises(AstromortyAPIResourceNotFoundError):
             await godbolt.getoutput("code", "invalid_lang", None)
 
     @pytest.mark.asyncio
@@ -62,7 +62,7 @@ class TestGodboltService:
         """Test timeout handling in getoutput."""
         httpx_mock.add_exception(httpx.ReadTimeout("Timeout"))
 
-        with pytest.raises(TuxAPIConnectionError):
+        with pytest.raises(AstromortyAPIConnectionError):
             await godbolt.getoutput("code", "python3", None)
 
     @pytest.mark.asyncio
@@ -139,7 +139,7 @@ class TestWandboxService:
         """Test timeout handling in Wandbox."""
         httpx_mock.add_exception(httpx.ReadTimeout("Timeout"))
 
-        with pytest.raises(TuxAPIConnectionError):
+        with pytest.raises(AstromortyAPIConnectionError):
             await wandbox.getoutput("code", "python-3.9.2", None)
 
     @pytest.mark.asyncio
@@ -147,7 +147,7 @@ class TestWandboxService:
         """Test connection error handling."""
         httpx_mock.add_exception(httpx.RequestError("Connection failed"))
 
-        with pytest.raises(TuxAPIConnectionError):
+        with pytest.raises(AstromortyAPIConnectionError):
             await wandbox.getoutput("code", "python-3.9.2", None)
 
     @pytest.mark.asyncio
@@ -155,7 +155,7 @@ class TestWandboxService:
         """Test HTTP status error handling."""
         httpx_mock.add_response(status_code=500, text="Server Error")
 
-        with pytest.raises(TuxAPIRequestError):
+        with pytest.raises(AstromortyAPIRequestError):
             await wandbox.getoutput("code", "python-3.9.2", None)
 
 

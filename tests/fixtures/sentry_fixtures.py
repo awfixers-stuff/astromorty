@@ -5,7 +5,7 @@ from unittest.mock import MagicMock, AsyncMock, patch
 import discord
 from discord.ext import commands
 
-from tux.core.bot import Tux
+from astromorty.core.bot import Astromorty
 
 
 @pytest.fixture
@@ -130,8 +130,8 @@ def mock_discord_context(mock_discord_user, mock_discord_guild, mock_discord_cha
 # Bot Fixtures
 @pytest.fixture
 def mock_tux_bot():
-    """Create mock Tux bot."""
-    bot = MagicMock(spec=Tux)
+    """Create mock Astromorty bot."""
+    bot = MagicMock(spec=Astromorty)
     bot.user = MagicMock()
     bot.user.id = 999888777
     bot.user.name = "TuxBot"

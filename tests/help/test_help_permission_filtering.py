@@ -12,9 +12,9 @@ import discord
 import pytest
 from discord.ext import commands
 
-from tux.core.permission_system import RESTRICTED_COMMANDS
-from tux.help.data import HelpData
-from tux.shared.config import CONFIG
+from astromorty.core.permission_system import RESTRICTED_COMMANDS
+from astromorty.help.data import HelpData
+from astromorty.shared.config import CONFIG
 
 
 class TestHelpPermissionFiltering:

@@ -12,8 +12,8 @@ from tests.fixtures import (
     TEST_GUILD_ID,
     validate_relationship_integrity,
 )
-from tux.database.models.models import Guild, GuildConfig
-from tux.database.service import DatabaseService
+from astromorty.database.models.models import Guild, GuildConfig
+from astromorty.database.service import DatabaseService
 
 
 class TestModelRelationships:

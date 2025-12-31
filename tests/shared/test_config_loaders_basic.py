@@ -11,7 +11,7 @@ import pytest
 from pydantic import Field
 from pydantic_settings import BaseSettings
 
-from tux.shared.config.loaders import (
+from astromorty.shared.config.loaders import (
     JsonConfigSource,
     TomlConfigSource,
     YamlConfigSource,
