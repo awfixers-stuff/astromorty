@@ -70,7 +70,7 @@ test = [
     "tzdata; sys_platform == 'win32'",
 ]
 dev = [
-    "ruff==0.12",
+    "ruff==0.12.4",
     "typing_extensions>=4.3,<5",
 ]
 

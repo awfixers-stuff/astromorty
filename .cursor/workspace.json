@@ -1,0 +1,144 @@
+{
+  "version": "1.0.0",
+  "name": "Astromorty Workspace",
+  "description": "All-in-one Discord bot workspace configuration for All Things Linux community",
+  "type": "python-project",
+  
+  "paths": {
+    "source": ["src/", "scripts/"],
+    "tests": ["tests/"],
+    "docs": ["docs/"],
+    "config": ["config/"],
+    "external": ["external/"],
+    "typings": ["typings/"]
+  },
+
+  "workspaces": {
+    "primary": {
+      "name": "astromorty",
+      "root": ".",
+      "description": "Main Astromorty Discord bot project"
+    },
+    "dashboard": {
+      "name": "dashboard",
+      "root": "src/dashboard",
+      "description": "Dashboard component for bot management"
+    },
+    "external-discord-py": {
+      "name": "discord.py",
+      "root": "external/discord.py",
+      "description": "Forked discord.py library with custom modifications"
+    },
+    "external-spotify-api": {
+      "name": "spotify-api.py",
+      "root": "external/spotify-api.py",
+      "description": "Spotify API integration library"
+    },
+    "external-lanyard": {
+      "name": "lanyard",
+      "root": "external/lanyard",
+      "description": "Lanyard API integration"
+    }
+  },
+
+  "sync": {
+    "enabled": true,
+    "auto_sync": true,
+    "sync_patterns": {
+      "include": [
+        ".cursor/rules/**",
+        ".cursor/commands/**",
+        "pyproject.toml",
+        "uv.lock",
+        ".python-version",
+        "config/*.example",
+        "docs/content/**",
+        "typings/**"
+      ],
+      "exclude": [
+        ".env*",
+        "config/*.local*",
+        "logs/",
+        "__pycache__/",
+        ".pytest_cache/",
+        ".ruff_cache/",
+        "*.lock.backup"
+      ]
+    },
+    "conflict_resolution": "manual"
+  },
+
+  "environment": {
+    "python_version": ">=3.13.2,<3.14",
+    "package_manager": "uv",
+    "virtual_env": ".venv",
+    "default_groups": ["dev", "test", "docs", "types"]
+  },
+
+  "tools": {
+    "linting": {
+      "tool": "ruff",
+      "config": "pyproject.toml",
+      "auto_fix": true
+    },
+    "type_checking": {
+      "tool": "basedpyright",
+      "config": "pyproject.toml",
+      "strict_mode": true
+    },
+    "testing": {
+      "tool": "pytest",
+      "config": "pyproject.toml",
+      "coverage": true,
+      "markers": ["unit", "integration", "e2e", "slow", "database", "async"]
+    },
+    "formatting": {
+      "tool": "ruff",
+      "config": "pyproject.toml"
+    }
+  },
+
+  "cursor": {
+    "rules_path": ".cursor/rules",
+    "commands_path": ".cursor/commands",
+    "validation_command": "uv run ai validate-rules",
+    "auto_apply_rules": true,
+    "rules": {
+      "always_apply": [
+        "core/tech-stack.mdc",
+        "core/dependencies.mdc"
+      ],
+      "file_scoped": {
+        "src/**/*.py": ["database/*.mdc", "modules/*.mdc", "ui/*.mdc"],
+        "tests/**/*.py": ["testing/*.mdc"],
+        "docs/**/*.md": ["docs/*.mdc"]
+      }
+    }
+  },
+
+  "database": {
+    "type": "postgresql",
+    "orm": "sqlmodel",
+    "migrations": {
+      "tool": "alembic",
+      "path": "src/astromorty/database/migrations",
+      "config": "alembic.ini"
+    }
+  },
+
+  "scripts": {
+    "dev_all": "uv run dev all",
+    "test_all": "uv run test all",
+    "test_quick": "uv run test quick",
+    "db_dev": "uv run db dev",
+    "db_health": "uv run db health",
+    "docs_serve": "uv run docs serve",
+    "validate_rules": "uv run ai validate-rules"
+  },
+
+  "quality_gates": {
+    "pre_commit": ["lint", "type_check", "format"],
+    "pre_push": ["test_quick", "validate_rules"],
+    "pre_release": ["test_all", "docs_build", "db_migration_test"]
+  }
+}
