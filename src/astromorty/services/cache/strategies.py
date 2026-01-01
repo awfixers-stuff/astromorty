@@ -164,3 +164,4 @@ def get_strategy(data_type: str) -> CacheStrategy:
     return CACHE_STRATEGIES.get(data_type, CacheStrategy(TTL_MEDIUM, f"{data_type}:{{id}}"))
 
 
+

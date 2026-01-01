@@ -616,17 +616,45 @@ async def test_webhook_events_endpoint():
 
 1. **Public HTTPS Endpoint**
    - Required for Discord to send requests
-   - Use reverse proxy (nginx, Caddy) or cloud provider (Cloudflare, AWS)
-   - SSL certificate (Let's Encrypt recommended)
+   - Options:
+     - **Cloudflare Worker** (recommended for serverless): `src/worker/` - Deploy separately
+     - Reverse proxy (nginx, Caddy) for self-hosted bot
+     - Cloud provider (AWS, GCP, Azure) for traditional deployment
+   - SSL certificate (Let's Encrypt recommended for self-hosted)
 
 2. **Endpoint URLs**
-   - Interactions Endpoint: `https://your-domain.com/interactions`
+   - Interactions Endpoint: `https://your-domain.com/interactions` or `https://your-worker.workers.dev`
    - Webhook Events: `https://your-domain.com/webhook-events`
 
 3. **Configuration**
    - Set in Discord Developer Portal
    - Update application settings
    - Test endpoint validation
+
+### Cloudflare Worker Deployment (Recommended)
+
+The project includes a Cloudflare Worker configuration in `src/worker/` that can be deployed separately:
+
+**Benefits:**
+
+- Serverless deployment (no infrastructure management)
+- Global edge network (low latency)
+- Free tier available
+- Automatic scaling
+- Separate from main bot deployment
+
+**Setup:**
+
+1. Configure `src/worker/wrangler.toml`
+2. Set secrets: `wrangler secret put DISCORD_PUBLIC_KEY`
+3. Deploy: `cd src/worker && pnpm deploy`
+4. Configure Interactions Endpoint URL in Discord Developer Portal
+
+**Architecture:**
+
+- Worker verifies signatures and forwards to bot backend API
+- Or handles interactions directly (limited functionality)
+- See `src/worker/README.md` for details
 
 ### Environment Variables
 

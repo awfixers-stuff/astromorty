@@ -25,7 +25,7 @@ from sqlalchemy import Enum as PgEnum
 from sqlalchemy.orm import Mapped, relationship
 from sqlmodel import Field, Relationship, SQLModel  # type: ignore[import]
 
-from .base import BaseModel
+from .base import BaseModel, UUIDMixin
 from .enums import (
     AntinukeActionType,
     AntinukeResponseType,
@@ -1790,7 +1790,7 @@ class AntinukeEvent(BaseModel, table=True):
 # =============================================================================
 
 
-class ErrorEvent(BaseModel, table=True):
+class ErrorEvent(BaseModel, UUIDMixin, table=True):
     """Error event tracking for analytics and monitoring.
 
     Records command errors for analytics, debugging, and system health monitoring.
@@ -1818,8 +1818,9 @@ class ErrorEvent(BaseModel, table=True):
         Whether the error was reported to Sentry.
     user_response_sent : bool
         Whether an error response was sent to the user.
-    metadata : dict, optional
+    event_metadata : dict, optional
         Additional context about the error (command args, permissions, etc.).
+        Stored in database column named 'metadata'.
     timestamp : datetime
         When the error occurred.
     """
@@ -1872,9 +1873,10 @@ class ErrorEvent(BaseModel, table=True):
         default=True,
         description="Whether an error response was sent to the user",
     )
-    metadata: dict[str, Any] | None = Field(
+    event_metadata: dict[str, Any] | None = Field(
         default=None,
         sa_type=JSON,
+        sa_column_kwargs={"name": "metadata"},
         description="Additional context about the error",
     )
     timestamp: datetime = Field(

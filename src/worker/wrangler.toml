@@ -1,0 +1,62 @@
+# ==============================================================================
+# ASTROMORTY DISCORD INTERACTIONS - CLOUDFLARE WORKER CONFIGURATION
+# ==============================================================================
+# Deploy: wrangler deploy (from src/worker directory)
+# Or: wrangler deploy --config src/worker/wrangler.toml (from repo root)
+#
+# This worker handles Discord HTTP interactions (slash commands, buttons, modals)
+# and can either forward them to the bot's backend API or handle them directly.
+# ==============================================================================
+
+# Cloudflare account ID (update with your account ID)
+# Get from: https://dash.cloudflare.com/ → Right sidebar → Account ID
+account_id = "53d9d9e6ebc5a0dddeeb59477445ea0c"
+
+name = "astromorty-interactions"
+compatibility_date = "2025-01-27"
+compatibility_flags = ["nodejs_compat"]
+
+# Enable workers.dev subdomain
+workers_dev = true
+
+# Main entry point (relative to wrangler.toml location)
+main = "./src/index.ts"
+
+# Observability - provides logs and metrics
+[observability]
+enabled = true
+
+# Smart Placement - automatically routes requests to optimal location
+[placement]
+mode = "smart"
+
+# Production environment
+[env.production]
+name = "astromorty-interactions"
+# Add custom domain routes here if needed
+# routes = [
+#   { pattern = "interactions.your-domain.com", custom_domain = true }
+# ]
+
+# Preview environment for testing
+[env.preview]
+name = "astromorty-interactions-preview"
+
+# Environment variables (set via wrangler secret put)
+# Required secrets:
+# - DISCORD_PUBLIC_KEY: Discord application public key (Ed25519 hex)
+# - BOT_API_URL: Optional - URL to forward interactions to bot backend
+#   If not set, worker will handle interactions directly (limited functionality)
+
+# Optional: KV namespace for storing interaction state
+# [[kv_namespaces]]
+# binding = "INTERACTION_STATE"
+# id = "your-kv-namespace-id"
+# preview_id = "your-preview-kv-namespace-id"
+
+# Optional: Durable Objects for stateful interactions
+# [[durable_objects.bindings]]
+# name = "InteractionState"
+# class_name = "InteractionStateDO"
+# script_name = "astromorty-interactions"
+

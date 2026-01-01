@@ -184,7 +184,8 @@ class AstromortyApp:
                     await asyncio.sleep(1)
 
         except Exception as e:
-            logger.exception("Bot execution failed")
+            logger.error(f"Bot execution failed: {type(e).__name__}: {e}")
+            logger.exception("Full traceback:")
             capture_exception_safe(e)
             return 1
         finally:

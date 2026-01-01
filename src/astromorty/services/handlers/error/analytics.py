@@ -76,7 +76,7 @@ class ErrorAnalyticsService:
             is_app_command=is_app_command,
             sent_to_sentry=sent_to_sentry,
             user_response_sent=user_response_sent,
-            metadata=metadata,
+            event_metadata=metadata,
             timestamp=datetime.now(UTC),
         )
 
@@ -227,5 +227,6 @@ class ErrorAnalyticsService:
         rows = result.all()
 
         return [{"date": row.date.isoformat(), "count": row.count} for row in rows]
+
 
 

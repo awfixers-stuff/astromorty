@@ -261,7 +261,7 @@ class Config(BaseSettings):
     EXTERNAL_SERVICES: ExternalServices = Field(default=ExternalServices())
 
     # SSH administration
-    SSH: SSHConfig = Field(default=SSHConfig())
+    ssh: SSHConfig = Field(default=SSHConfig(), alias="SSH")
 
     @classmethod
     def settings_customise_sources(
@@ -343,6 +343,44 @@ class Config(BaseSettings):
                 # Convert postgresql:// to postgresql+psycopg:// if needed
                 if url.startswith("postgresql://") and "+psycopg" not in url:
                     url = url.replace("postgresql://", "postgresql+psycopg://", 1)
+
+                # Handle Supabase pooler connections (port 6543) - convert to direct connection (port 5432)
+                # Pooler uses pgbouncer option which psycopg doesn't support
+                if ":6543" in url or "pooler.supabase.com" in url:
+                    import re
+
+                    # Remove pgbouncer option from query string
+                    url = re.sub(r"[&?]pgbouncer=[^&]*", "", url)
+                    # Clean up double ? or & at the start/end of query params
+                    url = re.sub(r"\?&", "?", url)
+                    url = re.sub(r"&+", "&", url)
+                    url = url.rstrip("&")
+
+                    # Extract project reference from username (Supabase format: postgres.[PROJECT-REF])
+                    # Pattern: postgres.[PROJECT-REF]@host:port or postgres.[PROJECT-REF]:password@host:port
+                    username_match = re.search(r"([^:@]+)(?::[^@]+)?@", url)
+                    if username_match:
+                        username_part = username_match.group(1)
+                        if "." in username_part:
+                            # Username format: postgres.[PROJECT-REF]
+                            parts = username_part.split(".", 1)
+                            base_username = parts[0]  # "postgres"
+                            project_ref = parts[1] if len(parts) > 1 else ""
+                            if project_ref:
+                                # Replace username with base username
+                                url = url.replace(username_part, base_username, 1)
+                                # Replace pooler hostname with direct connection hostname
+                                # Match: @any-host.pooler.supabase.com:port
+                                url = re.sub(
+                                    r"@[^:/]+\.pooler\.supabase\.com",
+                                    f"@db.{project_ref}.supabase.co",
+                                    url,
+                                )
+
+                    # Change port from 6543 (pooler) to 5432 (direct) if still pooler
+                    if "pooler.supabase.com" in url:
+                        url = url.replace(":6543", ":5432")
+
                 # Add SSL mode if not present (Supabase requires SSL)
                 if "sslmode" not in url and "?" not in url:
                     url = f"{url}?sslmode=require"

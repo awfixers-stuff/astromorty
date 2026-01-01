@@ -12,7 +12,7 @@ from typing import Any, TypeVar
 from urllib.parse import urlparse
 
 from aiocache import Cache
-from aiocache.backends import RedisBackend
+from aiocache.backends.redis import RedisCache
 from aiocache.serializers import JsonSerializer
 from loguru import logger
 
@@ -81,7 +81,6 @@ class CacheService:
                 serializer=JsonSerializer(),
                 namespace="astromorty",
                 timeout=5,  # Connection timeout
-                pool_maxsize=10,  # Connection pool size
             )
 
             logger.success(f"Redis cache initialized: {host}:{port}")
@@ -196,7 +195,7 @@ class CacheService:
             # aiocache doesn't have direct pattern delete, access Redis client directly
             if hasattr(self.cache, "_cache"):
                 backend = self.cache._cache
-                if isinstance(backend, RedisBackend) and hasattr(backend, "client"):
+                if isinstance(backend, RedisCache) and hasattr(backend, "client"):
                     # Get Redis client from backend
                     client = backend.client
                     # Use SCAN instead of KEYS for better performance

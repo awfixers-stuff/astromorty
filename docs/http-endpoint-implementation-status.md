@@ -169,6 +169,10 @@ HTTP_ONLY_MODE=false
 - **HTTP-Only Mode**: Can disable WebSocket entirely for serverless deployments
 - **Signature Verification**: All HTTP requests from Discord are verified using Ed25519
 - **Error Handling**: Proper error responses and logging throughout
+- **Cloudflare Worker**: Separate deployable worker for handling Discord interactions
+  - Can forward to bot backend API (recommended)
+  - Or handle interactions directly (limited functionality)
+  - Serverless, globally distributed, auto-scaling
 
 ### Documentation
 
@@ -188,5 +192,14 @@ HTTP_ONLY_MODE=false
    - Creates Interaction objects from HTTP payloads
    - Dispatches interactions through discord.py's CommandTree and View stores
    - Handles all interaction types (commands, components, modals, autocomplete)
+
+5. **Cloudflare Worker Configuration** (`src/worker/`)
+   - **`wrangler.toml`**: Cloudflare Worker configuration
+   - **`src/index.ts`**: Worker entry point with signature verification and routing
+   - **`package.json`**: Node.js dependencies (discord-interactions, wrangler)
+   - **`tsconfig.json`**: TypeScript configuration
+   - **`README.md`**: Worker setup and deployment guide
+   - Deployable separately from main bot
+   - Can forward interactions to bot backend or handle directly
 
 

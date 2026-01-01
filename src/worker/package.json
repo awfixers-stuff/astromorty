@@ -1,0 +1,39 @@
+{
+  "name": "astromorty-interactions-worker",
+  "version": "1.0.0",
+  "description": "Cloudflare Worker for handling Discord HTTP interactions",
+  "type": "module",
+  "main": "src/index.ts",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "deploy:preview": "wrangler deploy --env preview",
+    "deploy:production": "wrangler deploy --env production",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src",
+    "format": "prettier --write src"
+  },
+  "keywords": [
+    "discord",
+    "cloudflare-workers",
+    "interactions",
+    "bot"
+  ],
+  "author": "All Things Linux",
+  "license": "GPL-3.0-or-later",
+  "packageManager": "pnpm@10.25.0",
+  "dependencies": {
+    "@cloudflare/workers-types": "^4.20250124.0",
+    "discord-interactions": "^4.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "typescript": "^5.3.3",
+    "wrangler": "^3.78.0",
+    "eslint": "^8.56.0",
+    "prettier": "^3.2.5"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}
