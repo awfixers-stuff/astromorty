@@ -28,6 +28,19 @@ interface Env {
 }
 
 /**
+ * Discord interaction payload structure
+ */
+interface DiscordInteraction {
+  type: InteractionType;
+  data?: {
+    name?: string;
+    custom_id?: string;
+    [key: string]: unknown;
+  };
+  [key: string]: unknown;
+}
+
+/**
  * Handle Discord interaction HTTP requests
  */
 async function handleInteraction(
@@ -63,7 +76,7 @@ async function handleInteraction(
   }
 
   // Parse interaction payload
-  const interaction = await request.json();
+  const interaction = (await request.json()) as DiscordInteraction;
 
   // Handle PING (type 1) - Discord uses this to validate the endpoint
   if (interaction.type === InteractionType.PING) {
@@ -91,7 +104,7 @@ async function handleInteraction(
 async function forwardToBackend(
   originalRequest: Request,
   backendUrl: string,
-  interaction: any,
+  interaction: DiscordInteraction,
 ): Promise<Response> {
   try {
     // Get the original request body (already parsed, need to stringify)
@@ -147,7 +160,7 @@ async function forwardToBackend(
  * Handle interaction directly in worker (limited functionality)
  * This is a fallback when BOT_API_URL is not configured.
  */
-function handleDirectly(interaction: any): Response {
+function handleDirectly(interaction: DiscordInteraction): Response {
   const interactionType = interaction.type;
 
   // Application command (slash command)
