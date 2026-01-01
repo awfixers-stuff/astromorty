@@ -55,6 +55,8 @@ wrangler dev --config src/worker/wrangler.toml
 
 ### Deployment
 
+**Note:** Cloudflare Workers should be deployed using Wrangler CLI, not through Cloudflare Pages auto-build.
+
 ```bash
 # Deploy to production
 pnpm deploy:production
@@ -65,6 +67,9 @@ pnpm deploy:preview
 # Or from repo root
 wrangler deploy --config src/worker/wrangler.toml
 ```
+
+**Build Script:**
+The `build` script runs TypeScript typechecking (`tsc --noEmit`). Wrangler handles the actual bundling during deployment, so no build output is needed.
 
 ## Architecture
 
